@@ -6,7 +6,11 @@ namespace import tcltest::test
 
 set errorInfo ""
 test tcc-1 "load library" {
+    if {$::tcl_platform(platform) eq "windows"} {
 	load ../tcc02.dll
+    } else {
+        load ../libtcc0.2.so
+    }
     package present tcc
 } 0.2
 test tcc-2 "very simple command" {
@@ -66,7 +70,7 @@ test tcc-4 fibo {
 } 6765
 
 test tcc-5 "no more compiling allowed" -body {
-    tcc ./pkg tcc1
+    tcc ../pkg tcc1
     tcc1 add_symbol test 1
     tcc1 get_symbol test
     tcc1 compile whatever
@@ -83,7 +87,7 @@ test tcc-6 fiboTcl {
     fib 20
 } 6765
 
-test tcc-7 uuid {
+test tcc-7 uuid -constraints pc -body  {
     tcc ../pkg tccuuid
     tccuuid add_library rpcrt4
     set code {
@@ -103,7 +107,7 @@ test tcc-7 uuid {
     tccuuid command uuid uuid
     set t1 [time {uuid} 100]
     puts "Example tcc:\t [uuid]\n$t1"
-} ""
+} -result  ""
 
 test tcc-8 sigid {
     tcc ../pkg sigid_

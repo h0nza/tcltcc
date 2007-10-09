@@ -1,4 +1,4 @@
-load ../tcc02.dll
+load ../libtcc0.2.so
 # second parameter is the path to the tcc libraries
 tcc ../pkg tcc1
 

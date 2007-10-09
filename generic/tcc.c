@@ -390,7 +390,7 @@ static void put_extern_sym2(TCCState * st, Sym *sym, Section *section,
             sym_bind = STB_GLOBAL;
         
         name = get_tok_str(st, sym->v, NULL);
-#ifdef CONFIG_TCC_BCHECK
+#if 0
         if (do_bounds_check) {
             char buf[32];
 
@@ -3883,7 +3883,7 @@ void gaddrof(TCCState *st)
         vtop->r = (vtop->r & ~(VT_VALMASK | VT_LVAL_TYPE)) | VT_LOCAL | VT_LVAL;
 }
 
-#ifdef CONFIG_TCC_BCHECK
+#if 0
 /* generate lvalue bound code */
 void gbound(TCCState *st)
 {
@@ -3972,7 +3972,7 @@ int gv(TCCState *st, int rc)
             vtop->sym = sym;
             vtop->c.ul = 0;
         }
-#ifdef CONFIG_TCC_BCHECK
+#if 0
         if (vtop->r & VT_MUSTBOUND) 
             gbound(st );
 #endif
@@ -4777,7 +4777,7 @@ void gen_op(TCCState *st, int op)
             /* XXX: cast to int ? (long long case) */
             vpushi(st, pointed_size(st, &vtop[-1].type));
             gen_op(st, '*');
-#ifdef CONFIG_TCC_BCHECK
+#if 0
             /* if evaluating constant expression, no code should be
                generated, so no bound check */
             if (do_bounds_check && !const_wanted) {
@@ -5503,7 +5503,7 @@ void vstore(TCCState *st)
         vpop(st);
 
     } else {
-#ifdef CONFIG_TCC_BCHECK
+#if 0
         /* bound check case */
         if (vtop[-1].r & VT_MUSTBOUND) {
             vswap(st);
@@ -8783,7 +8783,7 @@ int tcc_run(TCCState *st, int argc, char **argv)
 
     prog_main = tcc_get_symbol_err(st, "main");
     
-#ifdef CONFIG_TCC_BCHECK
+#if 0
     if (do_bounds_check) {
         void (*bound_init)(void);
 
@@ -8810,6 +8810,8 @@ TCCState *tcc_new(char * libpath)
     if (!s)
         return NULL;
     s->output_type = TCC_OUTPUT_MEMORY;
+
+    s->tcc_lib_path = libpath ;
 
     /* init isid table */
     for(i=0;i<256;i++)
@@ -8870,17 +8872,15 @@ TCCState *tcc_new(char * libpath)
 #else
     tcc_define_symbol(s, "__WCHAR_TYPE__", "int");
 #endif
-    s->tcc_lib_path = libpath;
     
     /* default library paths */
-#ifdef WIN32
     {
         char buf[1024];
         snprintf(buf, sizeof(buf), "%s/lib", s->tcc_lib_path);
         // printf("default libraries %s\n",buf);
         tcc_add_library_path(s, buf);
     }
-#else
+#ifndef WIN32
     tcc_add_library_path(s, "/usr/local/lib");
     tcc_add_library_path(s, "/usr/lib");
     tcc_add_library_path(s, "/lib");
@@ -9192,7 +9192,7 @@ int tcc_set_output_type(TCCState *s, int output_type)
     }
 
     /* if bound checking, then add corresponding sections */
-#ifdef CONFIG_TCC_BCHECK
+#if 0
     if (do_bounds_check) {
         /* define symbol */
         tcc_define_symbol(s, "__BOUNDS_CHECKING_ON", NULL);
@@ -9368,7 +9368,7 @@ void help(void)
            "  -r          output relocatable .o file\n"
            "Debugger options:\n"
            "  -g          generate runtime debug info\n"
-#ifdef CONFIG_TCC_BCHECK
+#if 0
            "  -b          compile with built-in memory and bounds checker (implies -g)\n"
 #endif
            "  -bt N       show N callers in stack traces\n"
@@ -9429,7 +9429,7 @@ static const TCCOption tcc_options[] = {
     { "l", TCC_OPTION_l, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
     { "bench", TCC_OPTION_bench, 0 },
     { "bt", TCC_OPTION_bt, TCC_OPTION_HAS_ARG },
-#ifdef CONFIG_TCC_BCHECK
+#if 0
     { "b", TCC_OPTION_b, 0 },
 #endif
     { "g", TCC_OPTION_g, TCC_OPTION_HAS_ARG | TCC_OPTION_NOSEP },
@@ -9590,7 +9590,7 @@ int parse_args(TCCState *s, int argc, char **argv)
             case TCC_OPTION_bt:
                 num_callers = atoi(optarg);
                 break;
-#ifdef CONFIG_TCC_BCHECK
+#if 0
             case TCC_OPTION_b:
                 do_bounds_check = 1;
                 do_debug = 1;

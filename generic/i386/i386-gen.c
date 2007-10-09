@@ -492,18 +492,18 @@ void gfunc_epilog(TCCState *st)
 {
     int v, saved_ind;
 
-#ifdef CONFIG_TCC_BCHECK
+#if 0
     if (do_bounds_check && func_bound_offset != lbounds_section->data_offset) {
         int saved_ind;
         int *bounds_ptr;
         Sym *sym, *sym_data;
         /* add end of table info */
-        bounds_ptr = section_ptr_add(lbounds_section, sizeof(int));
+        bounds_ptr = section_ptr_add(st,lbounds_section, sizeof(int));
         *bounds_ptr = 0;
         /* generate bound local allocation */
         saved_ind = ind;
         ind = func_sub_sp_offset;
-        sym_data = get_sym_ref(&char_pointer_type, lbounds_section, 
+        sym_data = get_sym_ref(st,&char_pointer_type, lbounds_section, 
                                func_bound_offset, lbounds_section->data_offset);
         greloc(st, cur_text_section, sym_data,
                ind + 1, R_386_32);
@@ -519,7 +519,7 @@ void gfunc_epilog(TCCState *st)
                ind + 1, R_386_32);
         oad(st, 0xb8, 0); /* mov %eax, xxx */
         sym = external_global_sym(st, TOK___bound_local_delete, &func_old_type, 0);
-        greloc(cst, ur_text_section, sym, 
+        greloc(st, ur_text_section, sym, 
                ind + 1, R_386_PC32);
         oad(st, 0xe8, -4);
         o(st, 0x585a); /* restore returned value, if any */
@@ -958,10 +958,10 @@ void ggoto(TCCState *st)
 }
 
 /* bound check support functions */
-#ifdef CONFIG_TCC_BCHECK
+#if 0
 
 /* generate a bounded pointer addition */
-void gen_bounded_ptr_add(void)
+void gen_bounded_ptr_add()
 {
     Sym *sym;
 

@@ -174,7 +174,6 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
 
     Tcl_IncrRefCount(objv[1]);
     s = tcc_new(Tcl_GetString(objv[1]));
-    Tcl_DecrRefCount(objv[1]);
     tcc_set_error_func(s, interp, (void *)&TccErrorFunc);
     s->relocated = 0;
     // hacky part starts here, this really is a job for the linker but the linker on win32 doesn't support .a libs or decorated syms atm

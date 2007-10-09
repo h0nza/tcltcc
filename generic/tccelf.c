@@ -995,7 +995,7 @@ static void tcc_add_runtime(TCCState *st)
 {
     char buf[1024];
 
-#ifdef CONFIG_TCC_BCHECK
+#if 0
     if (do_bounds_check) {
         unsigned long *ptr;
         Section *init_section;
@@ -1029,7 +1029,7 @@ static void tcc_add_runtime(TCCState *st)
     if (!st->nostdlib) {
         tcc_add_library(st, "c");
 
-        snprintf(buf, sizeof(buf), "%s/%s", st->tcc_lib_path, "libtcc1.a");
+        snprintf(buf, sizeof(buf), "%s/lib/%s", st->tcc_lib_path, "libtcc1.a");
         tcc_add_file(st, buf);
     }
     /* add crt end if not memory output */
