@@ -1,0 +1,57 @@
+lappend auto_path ../
+package require tcc
+set t [tcc::new]
+puts $t
+$t add_include_path expat
+$t add_include_path generic
+
+set tdomver 0.8.2
+
+  lappend defs "BUILD_tdom=1"
+  # tdom 0.8
+  lappend defs "VERSION=\"$tdomver\""
+  # tdom CVS
+  lappend defs "PACKAGE_NAME=\"tdom\""
+  lappend defs "PACKAGE_VERSION=\"$tdomver\""
+
+  lappend defs "XML_DTD=1"
+  lappend defs "XML_NS=1"
+  lappend defs "TDOM_NO_UNKNOWN_CMD=1"
+  lappend defs "HAVE_MEMMOVE=1"
+  lappend defs "USE_TCL_STUBS=1"
+  lappend defs "strcasecmp=stricmp"
+  
+  # lappend defs "USE_TDOM_STUBS=1"
+  
+  # Use Tcl allocator (instead of default tDom one, which is heap 
+  # optimized, but not multi-thread friendly)
+  lappend defs "USE_NORMAL_ALLOCATOR=1"
+  
+  # Since expat library is linked statically inside
+  # same library than tdom, no need to have any special
+  # call mechanism
+  # lappend defs "XMLCALL="
+  lappend defs "XML_STATIC=1"
+
+foreach def $defs {
+    puts $def
+    $t define_symbol {*}[split $def =]
+}
+puts [time {
+foreach file [glob */*.c] {
+    puts $file
+    $t compile [read [open $file]]
+}
+$t compile {
+   #include "tcl.h"
+    int init ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+       Tdom_Init (interp);
+       return TCL_OK;
+   }
+}
+
+$t command init init
+
+init
+} 1]
+puts [[dom parse {<test><woot/></test>}] asXML]

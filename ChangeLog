@@ -1,0 +1,183 @@
+2007-10-08  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* demo/interinstance.tcl, demo/tdom-compile.tcl, demo/testtcc.tcl,
+	examples/interinstance.tcl, examples/testtcc.tcl:
+	moved examples to demo dir
+	[74598e1dc0c5] [tip]
+
+	* demo/tdom-compile.tcl:
+	Added tDom example and squashed some more memory issues
+	[560242b28a24]
+
+	* ChangeLog, TODO, configure, configure.in, demo/expat/COPYING,
+	demo/expat/Changes, demo/expat/README, demo/expat/VERSION,
+	demo/expat/amigaconfig.h, demo/expat/ascii.h, demo/expat/asciitab.h,
+	demo/expat/expat.h, demo/expat/expat_external.h,
+	demo/expat/iasciitab.h, demo/expat/internal.h,
+	demo/expat/latin1tab.h, demo/expat/macconfig.h,
+	demo/expat/nametab.h, demo/expat/utf8tab.h, demo/expat/winconfig.h,
+	demo/expat/xmlparse.c, demo/expat/xmlrole.c, demo/expat/xmlrole.h,
+	demo/expat/xmltok.c, demo/expat/xmltok.h, demo/expat/xmltok_impl.c,
+	demo/expat/xmltok_impl.h, demo/expat/xmltok_ns.c,
+	demo/generic/aolstub.cpp, demo/generic/dom.c, demo/generic/dom.h,
+	demo/generic/domalloc.c, demo/generic/domalloc.h,
+	demo/generic/domhtml.c, demo/generic/domhtml.h,
+	demo/generic/domlock.c, demo/generic/domxpath.c,
+	demo/generic/domxpath.h, demo/generic/domxslt.c,
+	demo/generic/domxslt.h, demo/generic/encodings.inc,
+	demo/generic/expat_config.h, demo/generic/nodecmd.c,
+	demo/generic/nodecmd.h, demo/generic/tcldom.c,
+	demo/generic/tcldom.h, demo/generic/tclexpat.c,
+	demo/generic/tclexpat.h, demo/generic/tdom.decls,
+	demo/generic/tdom.h, demo/generic/tdomDecls.h,
+	demo/generic/tdomStubInit.c, demo/generic/tdomStubLib.c,
+	demo/generic/tdominit.c, demo/generic/utf8conv.c,
+	demo/generic/utf8conv.h, demo/generic/win32.h,
+	demo/generic/xmlsimple.c, demo/generic/xmlsimple.h, demo/tdom-
+	compile.tcl, examples/interinstance.tcl, examples/testtcc.tcl,
+	generic/tcc.c, generic/tcltcc.c, pkg/include/_mingw.h,
+	pkg/include/assert.h, pkg/include/conio.h, pkg/include/ctype.h,
+	pkg/include/dir.h, pkg/include/direct.h, pkg/include/dirent.h,
+	pkg/include/dos.h, pkg/include/errno.h, pkg/include/excpt.h,
+	pkg/include/fcntl.h, pkg/include/fenv.h, pkg/include/float.h,
+	pkg/include/inttypes.h, pkg/include/io.h, pkg/include/libtcc.a,
+	pkg/include/libtcc.h, pkg/include/libtcc1.a, pkg/include/limits.h,
+	pkg/include/locale.h, pkg/include/malloc.h, pkg/include/math.h,
+	pkg/include/mem.h, pkg/include/memory.h, pkg/include/process.h,
+	pkg/include/setjmp.h, pkg/include/share.h, pkg/include/signal.h,
+	pkg/include/stdarg.h, pkg/include/stdbool.h, pkg/include/stddef.h,
+	pkg/include/stdint.h, pkg/include/stdio.h, pkg/include/stdlib.h,
+	pkg/include/string.h, pkg/include/sys/fcntl.h,
+	pkg/include/sys/file.h, pkg/include/sys/locking.h,
+	pkg/include/sys/stat.h, pkg/include/sys/time.h,
+	pkg/include/sys/timeb.h, pkg/include/sys/types.h,
+	pkg/include/sys/unistd.h, pkg/include/sys/utime.h,
+	pkg/include/tchar.h, pkg/include/tcl.h, pkg/include/tclDecls.h,
+	pkg/include/tclPlatDecls.h, pkg/include/time.h,
+	pkg/include/unistd.h, pkg/include/values.h, pkg/include/varargs.h,
+	pkg/include/wchar.h, pkg/include/wctype.h,
+	pkg/include/winapi/basetsd.h, pkg/include/winapi/basetyps.h,
+	pkg/include/winapi/winbase.h, pkg/include/winapi/wincon.h,
+	pkg/include/winapi/windef.h, pkg/include/winapi/windows.h,
+	pkg/include/winapi/winerror.h, pkg/include/winapi/wingdi.h,
+	pkg/include/winapi/winnetwk.h, pkg/include/winapi/winnls.h,
+	pkg/include/winapi/winnt.h, pkg/include/winapi/winreg.h,
+	pkg/include/winapi/winsvc.h, pkg/include/winapi/winuser.h,
+	pkg/include/winapi/winver.h, pkg/lib/advapi32.def,
+	pkg/lib/gdi32.def, pkg/lib/kernel32.def, pkg/lib/libtcc.a,
+	pkg/lib/libtcc1.a, pkg/lib/msvcrt.def, pkg/lib/user32.def,
+	pkg/tcc.tcl:
+	Added tDom example and squashed some more memory issues
+	[57ecbff7fac0]
+
+2007-10-07  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* examples/interinstance.tcl, generic/tcc.c:
+	SEGV squashed, bumped version to 0.2
+	[6e7dae1af2fd]
+
+	* generic/tcc.c:
+	TCCState refactor in progress ......... builds again
+	[e5c656b110cd]
+
+	* generic/tcc.c, generic/tcc.h, generic/tccelf.c,
+	generic/win32/tccpe.c:
+	TCCState refactor in progress ......... builds again
+	[6610435218a3]
+
+	* generic/tccelf.c:
+	TCCState refactor in progress ........
+	[2e65cc8b523d]
+
+	* generic/tccasm.c:
+	TCCState refactor in progress .......
+	[9dfbc46570b0]
+
+	* generic/i386/i386-asm.c, generic/tcc.c, generic/tccasm.c:
+	TCCState refactor in progress ......
+	[8179b30bcf56]
+
+	* generic/i386/i386-asm.c, generic/tcc.c:
+	TCCState refactor in progress .....
+	[c534f968c538]
+
+	* generic/i386-gen.c, generic/tcc.c:
+	TCCState refactor in progress ....
+	[a364365529a2]
+
+	* generic/tcc.c:
+	TCCState refactor in progress ...
+	[33ad87945ecd]
+
+	* generic/i386/i386-gen.c, generic/tcc.c, generic/tcc.h:
+	TCCState refactor in progress ..
+	[585adf485aaa]
+
+	* generic/i386/i386-gen.c, generic/tcc.c, generic/tcc.h:
+	TCCState refactor in progress .
+	[2bb5f1ec531b]
+
+	* generic/i386/i386-gen.c, generic/tcc.c, generic/tcc.h:
+	TCCState refactor in progress
+	[3bc70f8a61e8]
+
+	* generic/i386-gen.c, generic/tcc.c, generic/tcc.h, generic/tccasm.c,
+	generic/tccelf.c, generic/tcctok.h, generic/tcltcc.c:
+	In progress of tcc_state refactoring
+	[d50e3e6c3a38]
+
+	* ChangeLog, bug.tcl:
+	Removed bug file
+	[65f9f011b8af]
+
+	* ChangeLog:
+	Updated ChangeLog
+	[a96f6af88c8a]
+
+	* ChangeLog:
+	ChangeLog initial commit
+	[e676e8b6ea80]
+
+	* CHANGELOG:
+	Changed all occurences of malloc, realloc and free to Tcl's
+	versions.
+
+	This fixes the crash when overwritting an existing handle by
+	creating a new one with the same name.
+	[17eca3187a2b]
+
+	* .hgignore:
+	added .hgignore
+	[0d3bea824e9b]
+
+	* examples/testtcc.tcl:
+	ckalloc/realloc/free change fixed the bug that the compiler context
+	cannot be removed if the functions it defines are still used
+	[74110a2ebf50]
+
+	* CHANGELOG, Makefile.in, TODO, aclocal.m4, bug.tcl, configure,
+	configure.in, examples/include.zip, examples/lib.zip,
+	examples/readme.txt, examples/testtcc.tcl, generic/COPYING,
+	generic/Changelog, generic/Makefile, generic/README, generic/TODO,
+	generic/VERSION, generic/arm-gen.c, generic/asmtest.S,
+	generic/bcheck.c, generic/boundtest.c, generic/c67-gen.c,
+	generic/coff.h, generic/config.h, generic/config.mak,
+	generic/config.texi, generic/configure, generic/elf.h,
+	generic/float.h, generic/gcctestsuite.sh, generic/i386-asm.c,
+	generic/i386-asm.h, generic/i386-gen.c, generic/i386/alloca86.S,
+	generic/i386/bound-alloca86.S, generic/i386/i386-asm.c,
+	generic/i386/i386-asm.h, generic/i386/i386-gen.c, generic/il-gen.c,
+	generic/il-opcodes.h, generic/libtcc.h, generic/libtcc1.c,
+	generic/libtcc_test.c, generic/stab.def, generic/stab.h,
+	generic/stdarg.h, generic/stdbool.h, generic/stddef.h, generic/tcc-
+	doc.html, generic/tcc-doc.texi, generic/tcc.1, generic/tcc.c,
+	generic/tcc.h, generic/tcc.pod, generic/tccasm.c, generic/tcccoff.c,
+	generic/tccelf.c, generic/tcclib.h, generic/tcctest.c,
+	generic/tcctok.h, generic/tcltcc.c, generic/texi2pod.pl,
+	generic/varargs.h, generic/win32/readme.txt, generic/win32/tccpe.c,
+	generic/win32/tiny_impdef.c, install/pkgIndex.tcl, install/tcc.tcl,
+	pkgIndex.tcl.in, tclconfig/ChangeLog, tclconfig/README.txt,
+	tclconfig/install-sh, tclconfig/tcl.m4, tests/crashtest.tcl:
+	Initial commit
+	[f8ee69900c03]
+

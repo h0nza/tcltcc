@@ -1,0 +1,5 @@
+* TCC: Write a critcl wrapper to hide the details
+* TCC: check on Linux-i386
+* TCC: Generate shared lib
+* TEA: Remove the include of c files. Create seperate o files instead.
+
