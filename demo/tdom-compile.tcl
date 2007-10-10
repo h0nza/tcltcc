@@ -1,6 +1,9 @@
-lappend auto_path ../
-package require tcc
-set t [tcc::new]
+switch -exact -- $::tcl_platform(platform) {
+	windows {load ../tcc02.dll}
+	unix {load ../libtcc0.2.so}
+}
+tcc ../pkg tcc_1
+set t tcc_1
 puts $t
 $t add_include_path expat
 $t add_include_path generic
@@ -19,8 +22,9 @@ set tdomver 0.8.2
   lappend defs "TDOM_NO_UNKNOWN_CMD=1"
   lappend defs "HAVE_MEMMOVE=1"
   lappend defs "USE_TCL_STUBS=1"
-  lappend defs "strcasecmp=stricmp"
-  
+  if {$::tcl_platform(platform) eq "windows"} {
+    lappend defs "strcasecmp=stricmp"
+  } 
   # lappend defs "USE_TDOM_STUBS=1"
   
   # Use Tcl allocator (instead of default tDom one, which is heap 
@@ -35,7 +39,7 @@ set tdomver 0.8.2
 
 foreach def $defs {
     puts $def
-    $t define_symbol {*}[split $def =]
+    eval $t define [split $def =]
 }
 puts [time {
 foreach file [glob */*.c] {

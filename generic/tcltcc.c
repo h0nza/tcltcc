@@ -26,7 +26,9 @@ static void TccErrorFunc(Tcl_Interp * interp, char * msg) {
 static void TccCCommandDeleteProc (ClientData cdata) {
     TCCState * s ;
     s = (TCCState *)cdata;
-    // We don't want to delete the compiler because we might still use the created commands after this
+    Tcl_DecrRefCount(s->tcc_lib_path);
+    // We don't want to delete the compiler because we might 
+    // still use the created commands after this
     // tcc_delete(s);
 }
 
@@ -172,8 +174,7 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
         return TCL_ERROR;
     }
 
-    Tcl_IncrRefCount(objv[1]);
-    s = tcc_new(Tcl_GetString(objv[1]));
+    s = tcc_new(objv[1]);
     tcc_set_error_func(s, interp, (void *)&TccErrorFunc);
     s->relocated = 0;
     // hacky part starts here, this really is a job for the linker but the linker on win32 doesn't support .a libs or decorated syms atm

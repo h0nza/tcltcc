@@ -321,7 +321,7 @@ typedef struct CachedInclude {
 struct TCCState {
     int output_type;
     int relocated;
-    char * tcc_lib_path;
+    Tcl_Obj * tcc_lib_path;
  
     BufferedFile **include_stack_ptr;
     int *ifdef_stack_ptr;

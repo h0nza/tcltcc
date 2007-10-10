@@ -10,7 +10,7 @@ struct TCCState;
 typedef struct TCCState TCCState;
 
 /* create a new TCC compilation context */
-TCCState *tcc_new(char *libpath);
+TCCState *tcc_new(Tcl_Obj *libpath);
 
 /* free a TCC compilation context */
 void tcc_delete(TCCState *s);
