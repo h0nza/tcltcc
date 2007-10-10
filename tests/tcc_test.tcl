@@ -15,6 +15,7 @@ test tcc-1 "load library" {
 } 0.2
 test tcc-2 "very simple command" {
     tcc ../pkg tcc1
+    tcc1 add_library tcl8.5
     tcc1 compile {
         #include "tcl.h"
         int testc( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
@@ -28,8 +29,9 @@ test tcc-2 "very simple command" {
 } ""
 test tcc-3 "addition" {
     tcc ../pkg tcc2
-    tcc2 add_include_path include
+    tcc2 add_library tcl8.5
     tcc2 compile {
+
         #include "tcl.h"
         int add2(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
             int a, b;
@@ -48,10 +50,13 @@ test tcc-3 "addition" {
 } 7
 test tcc-4 fibo {
     tcc ../pkg tcc1
+    tcc1 add_library tcl8.5
     set l2 [time {
     tcc1 compile {
-        static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}
         #include "tcl.h"
+
+        static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}
+
         int fibo( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
             int n;
             if (objc!=2) {
@@ -90,6 +95,8 @@ test tcc-6 fiboTcl {
 test tcc-7 uuid -constraints pc -body  {
     tcc ../pkg tccuuid
     tccuuid add_library rpcrt4
+    tccuuid add_library tcl8.5
+    tccuuid add_include_path ../pkg/include/generic
     set code {
         #include "tcl.h"
         #include "rpc.h"
@@ -111,7 +118,7 @@ test tcc-7 uuid -constraints pc -body  {
 
 test tcc-8 sigid {
     tcc ../pkg sigid_
-    sigid_ add_include_path include
+    sigid_ add_library tcl8.5
     sigid_ compile {
         #include "tcl.h"
         int sigid(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){

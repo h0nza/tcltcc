@@ -39,12 +39,12 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
     Tcl_Obj * sym_addr;
 
     static CONST char *options[] = {
-        "add_include_path",  "add_library", "add_library_path", "add_symbol", "command", "compile", 
-        "define", "get_symbol", "undefine",    (char *) NULL
+        "add_include_path", "add_file",  "add_library", "add_library_path", "add_symbol", 
+        "command", "compile", "define", "get_symbol", "undefine",    (char *) NULL
     };
     enum options {
-        TCLTCC_ADD_INCLUDE, TCLTCC_ADD_LIBRARY, TCLTCC_ADD_LIBRARY_PATH, TCLTCC_ADD_SYMBOL, TCLTCC_COMMAND, TCLTCC_COMPILE,             
-        TCLTCC_DEFINE, TCLTCC_GET_SYMBOL, TCLTCC_UNDEFINE
+        TCLTCC_ADD_INCLUDE, TCLTCC_ADD_FILE, TCLTCC_ADD_LIBRARY, TCLTCC_ADD_LIBRARY_PATH, TCLTCC_ADD_SYMBOL, 
+        TCLTCC_COMMAND, TCLTCC_COMPILE, TCLTCC_DEFINE, TCLTCC_GET_SYMBOL, TCLTCC_UNDEFINE
     };
 
 
@@ -65,6 +65,17 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
             } else {
                 tcc_add_include_path(s, Tcl_GetString(objv[2]));
                 return TCL_OK;
+            }
+        case TCLTCC_ADD_FILE:   
+            if (objc != 3) {
+                Tcl_WrongNumArgs(interp, 2, objv, "filename");
+                return TCL_ERROR;
+            } else {
+                if(tcc_add_file(s, Tcl_GetString(objv[2]))!=0) {
+                    return TCL_ERROR;
+                } else {
+                    return TCL_OK;
+                }
             }
         case TCLTCC_ADD_LIBRARY:
             if (objc != 3) {
@@ -177,12 +188,6 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
     s = tcc_new(objv[1]);
     tcc_set_error_func(s, interp, (void *)&TccErrorFunc);
     s->relocated = 0;
-    // hacky part starts here, this really is a job for the linker but the linker on win32 doesn't support .a libs or decorated syms atm
-    // this is needed to prevent reloading of the standard libraries
-    tcc_define_symbol(s,"USE_TCL_STUBS","1");
-    // define the stubs pointer
-    tcc_add_symbol(s ,"tclStubsPtr", (unsigned long)&tclStubsPtr);
-    // hacky part ends here 
     tcc_set_output_type(s,TCC_OUTPUT_MEMORY);
     Tcl_CreateObjCommand(interp,Tcl_GetString(objv[2]),TccHandleCmd,s,TccCCommandDeleteProc);
 

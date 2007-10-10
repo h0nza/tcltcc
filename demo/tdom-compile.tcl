@@ -7,6 +7,7 @@ set t tcc_1
 puts $t
 $t add_include_path expat
 $t add_include_path generic
+$t add_library tcl8.5
 
 set tdomver 0.8.2
 
@@ -20,12 +21,10 @@ set tdomver 0.8.2
   lappend defs "XML_DTD=1"
   lappend defs "XML_NS=1"
   lappend defs "TDOM_NO_UNKNOWN_CMD=1"
-  lappend defs "HAVE_MEMMOVE=1"
-  lappend defs "USE_TCL_STUBS=1"
+  lappend defs "HAVE_MEMMOVE=0"
   if {$::tcl_platform(platform) eq "windows"} {
     lappend defs "strcasecmp=stricmp"
   } 
-  # lappend defs "USE_TDOM_STUBS=1"
   
   # Use Tcl allocator (instead of default tDom one, which is heap 
   # optimized, but not multi-thread friendly)

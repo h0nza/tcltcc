@@ -1,9 +1,102 @@
+2007-10-10  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* demo/tdom-compile.tcl:
+	Updated tdom example
+	[bbfa2a2c3fa8] [tip]
+
+	* pkg/lib/tcl8.5.def, pkg/lib/tcl85.def:
+	Match linux naming
+	[a7f3c08f1dea]
+
+	* pkg/include/tclUnixPort.h, pkg/include/unix/tclUnixPort.h,
+	tests/tcc_test.tcl:
+	Tests pass on windows
+	[26802f84a268]
+
+	* demo/generic/tdomStubLib.c, demo/generic/tdomStubLib.c.nostubs, demo
+	/tdom-compile.tcl, generic/tcltcc.c, pkg/c/tclStubLib.c,
+	pkg/include/generic/tclInt.h, pkg/include/generic/tclIntDecls.h,
+	pkg/include/generic/tclIntPlatDecls.h,
+	pkg/include/generic/tclPort.h, pkg/include/iocpDecls.h,
+	pkg/include/iocpsock.h, pkg/include/tclTomMath.h,
+	pkg/include/tclTomMathDecls.h, pkg/include/tclUnixPort.h,
+	pkg/include/tk.h, pkg/include/tkDecls.h,
+	pkg/include/tkIntXlibDecls.h, pkg/include/tkPlatDecls.h,
+	pkg/include/win/tclWinPort.h, pkg/include/winsock.h,
+	pkg/include/winsock2.h, pkg/include/xotcl.h,
+	pkg/include/xotclDecls.h, pkg/include/xotclInt.h,
+	pkg/include/xotclIntDecls.h, pkg/lib/tcl85.def, tests/tcc_test.tcl:
+	Removed Tcl initialization commands from TccCreateCmd. Link against
+	tcl85 instead and don't use stubs (although it is possible)
+	[6dfd30e82f28]
+
+	* generic/Makefile, generic/tcltcc.c:
+	Removed definition of Tcl symbols on instance creation
+	[5a2b33f7328a]
+
+	* generic/tcc.c, generic/tccelf.c:
+	Fixed tcc_lib_path leak on Linux
+	[82fec9a426d2]
+
+	* generic/libtcc.h, generic/tcc.c, generic/tcc.h, generic/tcltcc.c:
+	Fixed leak of s->tcc_lib_path when removing the tcc instance handle
+	[d8997e2145f1]
+
+	* demo/tdom-compile.tcl, generic/tcltcc.c, libtcc0.2.so:
+	Update tDom demo for Linux
+	[d22c005496fb]
+
+	* generic/tcc.c, libtcc0.2.so:
+	First linux build
+	[fb7afab60d92]
+
+	* demo/testtcc.tcl, generic/i386-gen.c, generic/i386/i386-gen.c,
+	generic/tcc.c, generic/tccelf.c, generic/tcltcc.c, libtcc0.2.so,
+	tests/tcc_test.tcl:
+	First linux build
+	[10f9decdfee8]
+
+	* configure:
+	configure should be executable on Linux
+	[e4edb4c53064]
+
+2007-10-09  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* TODO, demo/interinstance.tcl, demo/testtcc.tcl, generic/tcc.c,
+	generic/tcltcc.c, generic/win32/tiny_impdef.c, pkg/include/rpc.h,
+	pkg/include/rpcdce.h, pkg/include/rpcdce2.h, pkg/include/rpcdcep.h,
+	pkg/include/rpcndr.h, pkg/include/rpcnsi.h, pkg/include/rpcnsip.h,
+	pkg/include/rpcnterr.h, pkg/include/rpcproxy.h, pkg/lib/rpcrt4.def,
+	tests/crashtest.tcl, tests/critcl.tcl, tests/critcl_test.tcl,
+	tests/tcc_test.tcl, tools/tiny_impdef.c:
+	Several changes
+
+	* Don't remove TCCState when removing the associated Tcl command to
+	prevent crashes when calling the defined C functions
+	* Added include and def files needed for UUID demo
+	* Added TCC tests (suchenwi)
+	* Added Critcl simulation layer + tests (suchenwi)
+	[6da405f20518]
+
+	* demo/appendproc.tcl:
+	Added a benchmark for a list append in Tcl and tcc
+	[93e5f9db17c0]
+
 2007-10-08  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* TODO, demo/interinstance.tcl, demo/tdom-compile.tcl,
+	demo/testtcc.tcl, generic/tcc.c, generic/tcltcc.c:
+	Adding dll export in progress
+	[61abd4773be9]
+
+	* ChangeLog:
+	updated ChangeLog
+	[40474a807c7b]
 
 	* demo/interinstance.tcl, demo/tdom-compile.tcl, demo/testtcc.tcl,
 	examples/interinstance.tcl, examples/testtcc.tcl:
 	moved examples to demo dir
-	[74598e1dc0c5] [tip]
+	[74598e1dc0c5]
 
 	* demo/tdom-compile.tcl:
 	Added tDom example and squashed some more memory issues
