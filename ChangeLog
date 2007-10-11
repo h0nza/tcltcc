@@ -1,8 +1,21 @@
+2007-10-11  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* Merged
+	[d86e10d3f2b6] [tip]
+
+	* demo/tdom-compile.tcl:
+	Added tdom bench gcc/tcc
+	[aeaf1ab13755]
+
 2007-10-10  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* ChangeLog:
+	Update ChangeLog
+	[81115ffb3462]
 
 	* demo/tdom-compile.tcl:
 	Updated tdom example
-	[bbfa2a2c3fa8] [tip]
+	[bbfa2a2c3fa8]
 
 	* pkg/lib/tcl8.5.def, pkg/lib/tcl85.def:
 	Match linux naming
