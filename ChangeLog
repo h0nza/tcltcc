@@ -1,7 +1,12 @@
 2007-10-11  Mark Janssen  <mpc.janssen@gmail.com>
 
+	* pkg/include/tcl.h, pkg/include/unix/tclUnixPort.h,
+	pkg/include/win/tclWinPort.h:
+	Updated tcl header files to latest version
+	[8af01d6ec1f0] [tip]
+
 	* Merged
-	[d86e10d3f2b6] [tip]
+	[d86e10d3f2b6]
 
 	* demo/tdom-compile.tcl:
 	Added tdom bench gcc/tcc
