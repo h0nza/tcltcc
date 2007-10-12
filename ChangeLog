@@ -1,9 +1,16 @@
+2007-10-12  Mark Janssen  <mpc.janssen@gmail.com>
+
+	* TODO, generic/tcltcc.c, pkg/c/crt1.c, pkg/c/dllcrt1.c,
+	pkg/c/dllmain.c, pkg/c/wincrt1.c, tests/dlltest.tcl:
+	creating of dll on windows works
+	[35bab246bc0d] [tip]
+
 2007-10-11  Mark Janssen  <mpc.janssen@gmail.com>
 
 	* pkg/include/tcl.h, pkg/include/unix/tclUnixPort.h,
 	pkg/include/win/tclWinPort.h:
 	Updated tcl header files to latest version
-	[8af01d6ec1f0] [tip]
+	[8af01d6ec1f0]
 
 	* Merged
 	[d86e10d3f2b6]
