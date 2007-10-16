@@ -8,6 +8,7 @@ puts $t
 $t add_include_path expat
 $t add_include_path generic
 $t add_library tcl8.5
+$t define DLL_EXPORT ""
 
 set tdomver 0.8.2
 

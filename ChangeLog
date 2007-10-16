@@ -1,9 +1,18 @@
 2007-10-12  Mark Janssen  <mpc.janssen@gmail.com>
 
+	* pkg/tcc.tcl, tests/tcc.test, tests/tcc_test.tcl:
+	Include changes to test suite (suchenwi)
+	[83b097b7611a] [tip]
+
+	* demo/generic/tdominit.c, demo/large.xml, demo/tdom-compile-dll.tcl,
+	demo/tdom-compile.tcl, generic/libtcc1.c, pkg/c/libtcc1.c:
+	Added tdom dll example
+	[fd27668d59d2]
+
 	* TODO, generic/tcltcc.c, pkg/c/crt1.c, pkg/c/dllcrt1.c,
 	pkg/c/dllmain.c, pkg/c/wincrt1.c, tests/dlltest.tcl:
 	creating of dll on windows works
-	[35bab246bc0d] [tip]
+	[35bab246bc0d]
 
 2007-10-11  Mark Janssen  <mpc.janssen@gmail.com>
 

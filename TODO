@@ -2,4 +2,5 @@
 * TCC: check on Linux-i386
 * TCC: Generate shared lib
 * TEA: Remove the include of c files. Create seperate o files instead.
+* TCC: Remove definition of the tclStubsPtr. Use Tcl_InitStubs instead
 

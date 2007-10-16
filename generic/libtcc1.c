@@ -107,7 +107,7 @@ union float_long {
 };
 
 /* XXX: use gcc/tcc intrinsic ? */
-#if defined(__i386__)
+#if 1
 #define sub_ddmmss(sh, sl, ah, al, bh, bl) \
   __asm__ ("subl %5,%1\n\tsbbl %3,%0"					\
 	   : "=r" ((USItype) (sh)),					\

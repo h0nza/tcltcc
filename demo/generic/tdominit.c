@@ -61,7 +61,7 @@ extern TdomStubs tdomStubs;
  *----------------------------------------------------------------------------
  */
 
-int
+DLL_EXPORT int
 Tdom_Init (interp)
      Tcl_Interp *interp; /* Interpreter to initialize. */
 {
