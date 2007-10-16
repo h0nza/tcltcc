@@ -594,12 +594,12 @@ static void relocate_section(TCCState *st, Section *s)
                 uint32_t orig;
                 
                 /* put the low 16 bits of the absolute address */
-                // add to what is already there
+                /* add to what is already there */
                 
                 orig  =   ((*(int *)(ptr  )) >> 7) & 0xffff;
                 orig |=  (((*(int *)(ptr+4)) >> 7) & 0xffff) << 16;
                 
-                //patch both at once - assumes always in pairs Low - High
+                /*patch both at once - assumes always in pairs Low - High */
                 
                 *(int *) ptr    = (*(int *) ptr    & (~(0xffff << 7)) ) |  (((val+orig)      & 0xffff) << 7);
                 *(int *)(ptr+4) = (*(int *)(ptr+4) & (~(0xffff << 7)) ) | ((((val+orig)>>16) & 0xffff) << 7);
@@ -2118,7 +2118,7 @@ static int tcc_load_archive(TCCState *st, Tcl_Channel fd)
                 break;
         }
         ar_name[i + 1] = '\0';
-        //        printf("name='%s' size=%d %s\n", ar_name, size, ar_size);
+        /*        printf("name='%s' size=%d %s\n", ar_name, size, ar_size); */
         file_offset = Tcl_Seek(fd, 0, SEEK_CUR);
         /* align to even */
         size = (size + 1) & ~1;
@@ -2126,7 +2126,7 @@ static int tcc_load_archive(TCCState *st, Tcl_Channel fd)
             /* coff symbol table : we handle it */
 	    if(st->alacarte_link)
 		return tcc_load_alacarte(st, fd, size);
-        } else if (!strcmp(ar_name, "//") ||
+        } else if (!strcmp(ar_name, "/*") || 
                    !strcmp(ar_name, "__.SYMDEF") ||
                    !strcmp(ar_name, "__.SYMDEF/") ||
                    !strcmp(ar_name, "ARFILENAMES/")) {
@@ -2213,7 +2213,7 @@ static int tcc_load_dll(TCCState *st, Tcl_Channel fd, const char *filename, int 
         }
     }
     
-    //    printf("loading dll '%s'\n", soname);
+    /*    printf("loading dll '%s'\n", soname); */
 
     /* add the dll and its level */
     dllref = tcc_malloc(st, sizeof(DLLReference) + strlen(soname));
@@ -2373,7 +2373,7 @@ static int tcc_load_ldscript(TCCState *st)
     char filename[1024];
     int t, ret;
     
-    //fch = file->buf_ptr[0];
+    /*fch = file->buf_ptr[0]; */
     fch = handle_eob(st);
     for(;;) {
         t = ld_next(st, cmd, sizeof(cmd));

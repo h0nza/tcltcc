@@ -155,7 +155,7 @@ typedef struct _IMAGE_SECTION_HEADER {
 typedef struct _IMAGE_BASE_RELOCATION {
     DWORD VirtualAddress;
     DWORD SizeOfBlock;
-//  WORD    TypeOffset[1];
+/*  WORD    TypeOffset[1]; */
 } IMAGE_BASE_RELOCATION;
 
 #define IMAGE_SIZEOF_BASE_RELOCATION         8
@@ -365,7 +365,7 @@ struct pe_info {
 
 /* ------------------------------------------------------------- */
 #define PE_MERGE_DATA
-// #define PE_PRINT_SECTIONS
+/* #define PE_PRINT_SECTIONS */
 
 #ifndef MAX_PATH
 #define MAX_PATH 260
@@ -420,7 +420,7 @@ void *resolve_sym(struct TCCState *s1, const char *symbol, int type)
         if (hm) {
             a = GetProcAddress(hm, buffer);
             if (a && STT_OBJECT == type) {
-                // need to return a pointer to the address for data objects
+                /* need to return a pointer to the address for data objects */
                 dynarray_add(s1, &pe_imp, &nb_pe_imp, a);
                 a = &pe_imp[nb_pe_imp - 1];
             }
@@ -728,7 +728,7 @@ ST void pe_build_imports(TCCState *st, struct pe_info *pe)
 		section_ptr_add(st, pe->thunk, sizeof(WORD));	/* hint, not used */
 		put_elf_str(st, pe->thunk, name);
 	    } else {
-		v = 0;		// last entry is zero
+		v = 0;		/* last entry is zero */
 	    }
 	    *(DWORD *) (pe->thunk->data + thk_ptr) =
 		*(DWORD *) (pe->thunk->data + ent_ptr) = v;
@@ -761,7 +761,7 @@ ST void pe_build_exports(TCCState *st, struct pe_info *pe)
     voffset = pe->thunk->sh_addr - pe->imagebase;
     sym_count = 0, n = 1, sorted = NULL;
 
-    // for simplicity only functions are exported
+    /* for simplicity only functions are exported */
     for_sym_in_symtab(sym)
     {
         if ((sym->st_other & 1)
@@ -916,7 +916,7 @@ ST int pe_assign_addresses(TCCState *st, struct pe_info *pe)
 			si->sh_size = s->data_offset;
 			++pe->sec_count;
 		    }
-		    //printf("Section %08X %04X %s\n", si->sh_addr, si->data_size, s->name);
+		    /*printf("Section %08X %04X %s\n", si->sh_addr, si->data_size, s->name); */
 		}
 		section_order[k] = i, ++k;
 	    }
@@ -1168,7 +1168,7 @@ unsigned long pe_add_runtime(TCCState * st)
     if (TCC_OUTPUT_DLL == st->output_type)
     {
         pe_type = PE_DLL;
-        // need this for 'tccelf.c:relocate_section()'
+        /* need this for 'tccelf.c:relocate_section()' */
         st->output_type = TCC_OUTPUT_EXE;
     }
 

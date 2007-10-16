@@ -20,7 +20,7 @@
 
 #include "tcc.h"
 
-// This stuff is used by the code generation backend.
+/* This stuff is used by the code generation backend. */
 
 static int ind; /* output code index */
 static int loc; /* local variable index */
@@ -30,7 +30,7 @@ static Section *symtab_section;
 static CType func_vt; /* current function return type (used by return instruction) */
 static int func_vc;
 static Section *lbounds_section; /* contains local data bound description */
-// Predefined types
+/* Predefined types */
 static CType char_pointer_type;
 static CType func_old_type;
 
@@ -956,17 +956,17 @@ BufferedFile *tcc_open(TCCState *st, const char *filename)
     Tcl_Channel fd;
     BufferedFile *bf;
     int i, len;
-    //printf("opening '%s'\n", filename);
+    /*printf("opening '%s'\n", filename); */
     Tcl_Obj * path ;
     path = Tcl_NewStringObj(filename,-1);
     Tcl_IncrRefCount(path);
     fd = Tcl_FSOpenFileChannel(NULL,path, "r", 0);
     Tcl_DecrRefCount(path);
     if (fd==NULL) {
-        //printf("T_FOFC, returned NULL\n"); 
+        /*printf("T_FOFC, returned NULL\n");  */
         return NULL;
     }
-    //printf("T_FOFC, returned SUCCESS\n"); 
+    /*printf("T_FOFC, returned SUCCESS\n");  */
     bf = tcc_malloc(st, sizeof(BufferedFile));
     if (!bf) {
         Tcl_Close(NULL,fd);
@@ -1894,10 +1894,10 @@ static void pragma_parse(TCCState *st)
     if (tok == TOK_pack) {
         /*
           This may be:
-          #pragma pack(1) // set
-          #pragma pack() // reset to default
-          #pragma pack(push,1) // push & set
-          #pragma pack(pop) // restore previous
+          #pragma pack(1) set 
+          #pragma pack() reset to default 
+          #pragma pack(push,1) push & set 
+          #pragma pack(pop) restore previous 
         */
         next(st);
         skip(st, '(');
@@ -8422,7 +8422,7 @@ static void decl(TCCState *st, int l)
                            extern */
                         external_sym(st, v, &type, r);
                     } else {
-                        type.t |= (btype.t & VT_STATIC); // Retain "static".
+                        type.t |= (btype.t & VT_STATIC); /* Retain "static". */
                         if (type.t & VT_STATIC)
                             r |= VT_CONST;
                         else
@@ -8871,7 +8871,7 @@ TCCState *tcc_new(Tcl_Obj * libpath)
     {
         char buf[1024];
         snprintf(buf, sizeof(buf), "%s/lib", Tcl_GetString(s->tcc_lib_path));
-        // printf("default libraries %s\n",buf);
+        /* printf("default libraries %s\n",buf); */
         tcc_add_library_path(s, buf);
     }
 #ifndef WIN32
@@ -8912,7 +8912,7 @@ TCCState *tcc_new(Tcl_Obj * libpath)
 
 void tcc_delete(TCCState *st)
 {
-    // this leaks but allows you to reuse handles without crashing the process
+    /* this leaks but allows you to reuse handles without crashing the process */
     int i, n;
 
     /* free -D defines */

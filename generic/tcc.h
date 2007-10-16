@@ -62,19 +62,16 @@
 #include "libtcc.h"
 
 /* parser debug */
-//#define PARSE_DEBUG
+/*#define PARSE_DEBUG */
 /* preprocessor debug */
-//#define PP_DEBUG
+/*#define PP_DEBUG */
 /* include file debug */
-//#define INC_DEBUG
+/*#define INC_DEBUG */
 
 /* assembler debug */
-//#define ASM_DEBUG
+/*#define ASM_DEBUG */
 
 /* target selection */
-//#define TCC_TARGET_I386   /* i386 code generator */
-//#define TCC_TARGET_ARM    /* ARMv4 code generator */
-//#define TCC_TARGET_C67    /* TMS320C67xx code generator */
 
 /* default target is I386 */
 #if !defined(TCC_TARGET_I386) && !defined(TCC_TARGET_ARM) && \
@@ -311,9 +308,7 @@ typedef struct CachedInclude {
 
 #define PARSE_FLAG_PREPROCESS 0x0001 /* activate preprocessing */
 #define PARSE_FLAG_TOK_NUM    0x0002 /* return numbers instead of TOK_PPNUM */
-#define PARSE_FLAG_LINEFEED   0x0004 /* line feed is returned as a
-                                        token. line feed is also
-                                        returned at eof */
+#define PARSE_FLAG_LINEFEED   0x0004 /* line feed is returned as a token. line feed is also returned at eof */
 #define PARSE_FLAG_ASM_COMMENTS 0x0008 /* '#' can be used for line comment */
  
 #define SYM_POOL_NB (8192 / sizeof(Sym))
@@ -420,8 +415,7 @@ struct TCCState {
 
 /* The current value can be: */
 #define VT_VALMASK   0x00ff
-#define VT_CONST     0x00f0  /* constant in vc 
-                              (must be first non register value) */
+#define VT_CONST     0x00f0  /* constant in vc (must be first non register value) */
 #define VT_LLOCAL    0x00f1  /* lvalue, offset on stack */
 #define VT_LOCAL     0x00f2  /* offset on stack */
 #define VT_CMP       0x00f3  /* the value is stored in processor flags (in vc) */

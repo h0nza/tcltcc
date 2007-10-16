@@ -61,17 +61,16 @@ init
 puts [[dom parse {<test><woot/></test>}] asXML]
 
 # performance bench tcc/gcc
-catch {
-    set f [open [file dirname [info script]]/large.xml]
-    set xml [read $f]
-    close $f
-    rename dom tccdom
-    package forget tdom
-    package require tdom
-    rename dom gccdom
-    puts "Parsing a [file size [file dirname [info script]]/large.xml] byte XML file"
-    puts "--------------------------------"
-    puts "tcc: [time {tccdom parse $xml}]"
-    puts "gcc: [time {gccdom parse $xml}]"
-} 
+set f [open [file dirname [info script]]/large.xml]
+set xml [read $f]
+close $f
+rename dom tccdom
+puts "Parsing a [file size [file dirname [info script]]/large.xml] byte XML file"
+puts "--------------------------------"
+puts "tcc: [time {tccdom parse $xml}]"
+if {![catch {[package require tdom}]} {
+	package forget tdom
+	rename dom gccdom
+	puts "gcc: [time {gccdom parse $xml}]"
+}
 

@@ -27,7 +27,7 @@ static void TccCCommandDeleteProc (ClientData cdata) {
     TCCState * s ;
     s = (TCCState *)cdata;
     Tcl_DecrRefCount(s->tcc_lib_path);
-    // We can delete the compiler if the output was not to memory
+    /* We can delete the compiler if the output was not to memory */
     if (s->output_type != TCC_OUTPUT_MEMORY) {
         tcc_delete(s);
     }
@@ -119,7 +119,7 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
                 }
             }
             tcc_get_symbol(s,&val,Tcl_GetString(objv[3]));
-            //printf("symbol: %x\n",val);
+            /*printf("symbol: %x\n",val); */
             Tcl_CreateObjCommand(interp,Tcl_GetString(objv[2]),(void *)val,NULL,NULL);
             return TCL_OK;
         case TCLTCC_COMPILE:
@@ -228,7 +228,7 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
     s = tcc_new(objv[1]);
     tcc_set_error_func(s, interp, (void *)&TccErrorFunc);
     s->relocated = 0;
-    //printf("type: %d\n", index);
+    /*printf("type: %d\n", index); */
     tcc_set_output_type(s,index);
     Tcl_CreateObjCommand(interp,Tcl_GetString(objv[objc-1]),TccHandleCmd,s,TccCCommandDeleteProc);
 
