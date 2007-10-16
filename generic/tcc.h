@@ -34,7 +34,9 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H
+ #include <unistd.h>
+#endif
 #include <signal.h>
 #include <fcntl.h>
 #include <setjmp.h>
@@ -423,12 +425,9 @@ struct TCCState {
 #define VT_JMPI      0x00f5  /* value is the consequence of jmp false (odd) */
 #define VT_LVAL      0x0100  /* var is an lvalue */
 #define VT_SYM       0x0200  /* a symbol value is added */
-#define VT_MUSTCAST  0x0400  /* value must be casted to be correct (used for
-                                char/short stored in integer registers) */
-#define VT_MUSTBOUND 0x0800  /* bound checking must be done before
-                                dereferencing value */
-#define VT_BOUNDED   0x8000  /* value is bounded. The address of the
-                                bounding function call point is in vc */
+#define VT_MUSTCAST  0x0400  /* value must be casted to be correct (used for char/short stored in integer registers) */
+#define VT_MUSTBOUND 0x0800  /* bound checking must be done before dereferencing value */
+#define VT_BOUNDED   0x8000  /* value is bounded. The address of the bounding function call point is in vc */
 #define VT_LVAL_BYTE     0x1000  /* lvalue is a byte */
 #define VT_LVAL_SHORT    0x2000  /* lvalue is a short */
 #define VT_LVAL_UNSIGNED 0x4000  /* lvalue is unsigned */
@@ -448,8 +447,7 @@ struct TCCState {
 #define VT_LDOUBLE   10  /* IEEE long double */
 #define VT_BOOL      11  /* ISOC99 boolean type */
 #define VT_LLONG     12  /* 64 bit integer */
-#define VT_LONG      13  /* long integer (NEVER USED as type, only
-                            during parsing) */
+#define VT_LONG      13  /* long integer (NEVER USED as type, only during parsing) */
 #define VT_BTYPE      0x000f /* mask for basic type */
 #define VT_UNSIGNED   0x0010  /* unsigned type */
 #define VT_ARRAY      0x0020  /* array type (also has VT_PTR) */
