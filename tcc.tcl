@@ -1,3 +1,5 @@
+# tcc.tcl - library routines for the tcc wrapper (Mark Janssen)
+
 namespace eval tcc {
    variable dir 
    variable libs
@@ -7,7 +9,11 @@ namespace eval tcc {
    variable commands
 
    set dir [file dirname [info script]]
-   load $dir/tcc02.dll tcc
+   switch -exact -- $::tcl_platform(platform) {
+	   windows { load $dir/tcc02.dll tcc }
+	   unix { load $dir/libtcc0.2.so tcc }
+	   default {error "unsupport platform"}
+   }
    set libs $dir/lib
    set includes $dir/include
    set count 0
@@ -26,14 +32,13 @@ namespace eval tcc {
        set cname _tcc_tcl_command_[incr command_count]
        set code    {#include "tcl.h"}
        append code "\n int $cname"
-       append code "( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){"
+       append code "(ClientData cdata,Tcl_Interp *interp,int objc,Tcl_Obj* CONST objv[]){"
        append code "\n$ccode"
        append code "}"
        $handle compile $code
        set commands($handle,$name) $cname
        return
    }
-
    proc compile {handle} {
        variable commands
        foreach cmd [array names commands $handle*] {
@@ -47,10 +52,25 @@ namespace eval tcc {
        return
    }
 }
-
-namespace eval ::tcc {
-  variable tcc
-  set tcc(dir) [file dirname [info script]]
+proc tcc::to_dll {code dll {libs {}}} {
+    tcc $::tcc::dir dll tcc_1
+    tcc_1 add_library tcl8.5 
+    tcc_1 add_library_path .
+    foreach lib $libs {tcc_1 add_library $lib}
+    if {$::tcl_platform(platform) eq "windows"} {
+        tcc_1 define DLL_EXPORT {__declspec(dllexport)} 
+        set f [open $::tcc::dir/c/dllcrt1.c]
+        tcc_1 compile [read $f]
+        close $f
+        set f [open $::tcc::dir/c/dllmain.c]
+        tcc_1 compile [read $f]
+        close $f
+    } else {
+        tcc_1 define DLL_EXPORT ""
+    }
+    tcc_1 compile $code
+    tcc_1 output_file $dll
+    rename tcc_1 {}
 }
 proc ::tcc::Log {args} {
   # puts $args
@@ -74,13 +94,48 @@ proc ::tcc::cc {code} {
   variable tcc
   if {![info exists tcc(cc)]} {
       set tcc(cc) tcc1
-      tcc $tcc(dir) $tcc(cc)
+      tcc $tcc::dir $tcc(cc)
       $tcc(cc) add_library tcl8.5
   }
   Log code:$code
   $tcc(cc) compile $code
 }
-proc ::tcc::cproc {name adefs rtype {body "#"}} {
+#----------------------------------------------------------- New DLL API
+proc ::tcc::dll {{name ""}} {
+    variable count
+    if {$name eq ""} {set name dll[incr count]}
+    namespace eval ::tcc::dll::$name {
+        variable code "#include <tcl.h>\n" ;# always needed
+        variable cmds {}
+    }
+    proc ::$name {cmd args} "::tcc::dll::\$cmd $name \$args"
+    return $name
+}
+namespace eval ::tcc::dll {}
+proc ::tcc::dll::ccode {name argl} {
+    append ${name}::code \n [lindex $argl 0]
+    return
+}
+proc ::tcc::dll::cproc {name argl} {
+    foreach {pname pargs rtype body} $argl break
+    set code [::tcc::wrapCmd $pname $pargs $rtype cx_$pname $body]
+    lappend ${name}::cmds $pname cx_$pname
+    append ${name}::code \n $code
+    return
+}
+proc ::tcc::dll::write {name argl} {
+    set (-dir) .
+    set (-code) "" ;# possible extra code to go into the _Init function
+    set (-libs) ""
+    set (-name) [string tolower $name]
+    array set "" $argl
+    append ${name}::code \n \
+        [::tcc::wrapExport $(-name) [set ${name}::cmds] $(-code)]
+    set outfile $(-dir)/$(-name)[info sharedlibextension]
+    ::tcc::to_dll [set ${name}::code] $outfile $(-libs)
+}
+#---------------------------------------------------------------------
+proc ::tcc::wrap {name adefs rtype {body "#"}} {
   set cname c_$name
   set wname tcl_$name
   array set types {}
@@ -88,7 +143,7 @@ proc ::tcc::cproc {name adefs rtype {body "#"}} {
   set cargs {}
   set cnames {}  
   # if first arg is "Tcl_Interp*", pass it without counting it as a cmd arg
-  if {[lindex $adefs 0] == "Tcl_Interp*"} {
+  if {[lindex $adefs 0] eq "Tcl_Interp*"} {
     lappend cnames ip
     lappend cargs [lrange $adefs 0 1]
     set adefs [lrange $adefs 2 end]
@@ -105,14 +160,13 @@ proc ::tcc::cproc {name adefs rtype {body "#"}} {
     default { set rtype2 $rtype }
   }
   set code ""
-  append code "\#include <tcl.h>" "\n"
+  append code "\n#include <tcl.h>" "\n"
   if {[info exists tcc(tk)] && $tcc(tk)} {
     append code "\#include <tk.h>" "\n"
   }
-  if {$body != "#"} {
+  if {$body ne "#"} {
     append code "static $rtype2" "\n"
-    append code "${cname}([join $cargs {, }])" "\n"
-    append code "\{" "\n"
+    append code "${cname}([join $cargs {, }]) \{\n"
     append code $body
     append code "\}" "\n"
   } else {
@@ -138,7 +192,7 @@ proc ::tcc::cproc {name adefs rtype {body "#"}} {
   }
   if {$rtype ne "void"} { append cbody  "  $rtype2 rv;" "\n" }  
   append cbody "  if (objc != [expr {[llength $names] + 1}]) {" "\n"
-  append cbody "    Tcl_WrongNumArgs(ip, 1, objv, \"[join $names { }]\");" "\n"
+  append cbody "    Tcl_WrongNumArgs(ip, 1, objv, \"[join $names { }]\");\n"
   append cbody "    return TCL_ERROR;" "\n"
   append cbody "  }" "\n"
   set n 0
@@ -204,10 +258,36 @@ proc ::tcc::cproc {name adefs rtype {body "#"}} {
     default 	{ append cbody "  Tcl_SetObjResult(ip, rv); Tcl_DecrRefCount(rv);" "\n" }
   }
   if {$rtype != "ok"} {append cbody "  return TCL_OK;" \n}
+
+  #puts ----code:\n$code
+  #puts ----cbody:\n$cbody
+  list $code $cbody
+}
+proc ::tcc::wrapCmd {tclname argl rtype cname body} {
+    foreach {code cbody} [wrap $tclname $argl $rtype $body] break
+    append code "\nstatic int $cname"
+    append code {(ClientData cdata,Tcl_Interp *ip,
+        int objc,Tcl_Obj* CONST objv[])} " \{"
+    append code \n$cbody \n\}\n
+}
+proc ::tcc::wrapExport {name cmds {body ""}} {
+    set code "DLL_EXPORT int [string totitle $name]_Init(Tcl_Interp *interp)"
+    append code " \{\n"
+    foreach {tclname cname} $cmds {
+        append code \
+            "Tcl_CreateObjCommand(interp,\"$tclname\",$cname,NULL,NULL);\n"
+    }
+    append code $body
+    append code "\nreturn TCL_OK;\n\}"
+}
+#---------------------------------------------------------------------
+proc ::tcc::cproc {name adefs rtype {body "#"}} {
+  foreach {code cbody} [wrap $name $adefs $rtype $body] break
   ccode $code
   set ns [namespace current]
   uplevel 1 [list ${ns}::ccommand $name {dummy ip objc objv} $cbody]
 }
+#---------------------------------------------------------------------
 proc ::tcc::cdata {name data} {
   # Extract bytes from data
   binary scan $data c* bytes
@@ -232,7 +312,7 @@ proc ::tcc::cdata {name data} {
   append cbody "static unsigned char script\[$count\] = \{" "\n"
   append cbody $inittext
   append cbody "\};" "\n"
-  append cbody "Tcl_SetByteArrayObj(Tcl_GetObjResult(ip), (unsigned char*) script, $count);" "\n"
+  append cbody "Tcl_SetByteArrayObj(Tcl_GetObjResult(ip), (unsigned char*) script, $count);\n"
   append cbody "return TCL_OK;" "\n"
   set ns [namespace current]
   uplevel 1 [list ${ns}::ccommand $name {dummy ip objc objv} $cbody]
@@ -289,5 +369,4 @@ proc ::tcc::tk {args} {
 }
 ::tcc::reset
 namespace eval tcc {namespace export cproc ccode cdata}
-
 
