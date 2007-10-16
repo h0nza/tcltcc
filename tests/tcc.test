@@ -1,0 +1,251 @@
+#!/usr/bin/env tclsh
+#-- tests for tcc (Mark Janssen), R. Suchenwirth 2007-10-06
+
+package require tcltest
+namespace import tcltest::test
+
+test tcc-1 "load library" {
+	set dir ..
+	source ../pkgIndex.tcl
+    package require tcc 0.2
+} 0.2
+test tcc-2 "very simple command" {
+    tcc $::tcc::dir tcc1
+    tcc1 add_library tcl8.5
+    tcc1 compile {
+        #include "tcl.h"
+        int testc( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+            Tcl_Eval (interp, "puts woot");
+            return TCL_OK;
+        }
+    }
+    tcc1 command test2 testc
+    rename tcc1 {}
+    test2
+} ""
+test tcc-3 "addition" {
+    tcc $::tcc::dir tcc2
+    tcc2 add_library tcl8.5
+    tcc2 compile {
+        #include "tcl.h"
+        int add2(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+            int a, b;
+            if (objc!=3) {
+                Tcl_WrongNumArgs(interp,2,objv,"int");return TCL_ERROR;
+            }
+            if (Tcl_GetIntFromObj(interp,objv[1],&a)!=TCL_OK) return TCL_ERROR;
+            if (Tcl_GetIntFromObj(interp,objv[2],&b)!=TCL_OK) return TCL_ERROR;
+            Tcl_SetObjResult(interp, Tcl_NewIntObj( a + b ));
+            return TCL_OK;
+        }
+    }
+    tcc2 command add2 add2
+    rename tcc2 {}
+    add2 3 4
+} 7
+test tcc-4 fibo {
+    tcc $::tcc::dir tcc1
+    tcc1 add_library tcl8.5
+    set l2 [time {
+    tcc1 compile {
+        #include "tcl.h"
+        static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}
+        int fibo( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+            int n;
+            if (objc!=2) {
+                Tcl_WrongNumArgs(interp,1,objv,"int"); return TCL_ERROR;
+            }
+            if (Tcl_GetIntFromObj(interp,objv[1],&n)!=TCL_OK) return TCL_ERROR;
+            Tcl_SetObjResult(interp, Tcl_NewIntObj(fib(n)));
+            return TCL_OK;
+        }
+    }
+    tcc1 command fibo fibo
+    }]
+    puts "fibo compile time: $l2, fibo 20: [time {fibo 20}]"
+    rename tcc1 {}
+    fibo 20
+} 6765
+
+test tcc-5 "no more compiling allowed" -body {
+    tcc $::tcc::dir tcc1
+    tcc1 add_symbol test 1
+    tcc1 get_symbol test
+    tcc1 compile whatever
+} -returnCodes 1 -result {code already relocated, cannot compile more} -cleanup {rename tcc1 {}}
+set errorInfo ""
+
+test tcc-6 fiboTcl {
+    set l1 [time {
+        proc fib n {
+           expr {$n <= 2? 1: [fib [expr {$n-1}]] + [fib [expr {$n-2}]]}
+        }
+    }]
+    puts "tcl:fib compile: $l1"
+    fib 20
+} 6765
+
+test tcc-7 uuid -constraints pc -body  {
+    tcc $::tcc::dir tccuuid
+    tccuuid add_library rpcrt4
+    tccuuid add_library tcl8.5
+    tccuuid add_include_path ../pkg/include/generic
+    set code {
+        #include "tcl.h"
+        #include "rpc.h"
+        int uuid( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+            UUID id;
+            unsigned char * strUUID;
+            UuidCreate(&id);
+            UuidToString(&id, &strUUID);
+            Tcl_SetObjResult(interp, Tcl_NewStringObj(strUUID,-1));
+            RpcStringFree(&strUUID);
+            return TCL_OK;
+        }
+    }
+    tccuuid compile $code
+    tccuuid command uuid uuid
+    set t1 [time {uuid} 100]
+    puts "Example tcc:\t [uuid]\n$t1"
+} -result  ""
+
+
+test tcc-8 sigid {
+    tcc $::tcc::dir sigid_
+    sigid_ add_library tcl8.5
+    sigid_ compile {
+        #include "tcl.h"
+        int sigid(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){
+            int i;
+            if (objc!=2) {
+                Tcl_WrongNumArgs(interp,1,objv,"int"); return TCL_ERROR;
+            }
+            if (Tcl_GetIntFromObj(interp,objv[1],&i)!=TCL_OK) return TCL_ERROR;
+            Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_SignalId(i),-1));
+            return TCL_OK;
+         }
+    }
+    sigid_ command sigid sigid
+    sigid 2
+} SIGINT
+
+test tcc-9 crashtest -constraints knownBug -body {
+    set i 50
+    while {$i} {
+        tcc . tcc1
+        incr i -1
+    }
+    list [catch {tcc1 compile nonsnes} err] $err
+} -result {1 {<string>:1: ';' expected
+compilation failed}}
+
+set code {
+    #include "tcl.h"
+    static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}
+    static int fibo(ClientData cdata,Tcl_Interp *interp,int objc,Tcl_Obj* CONST objv[]){
+        int n;
+        if (objc!=2) {
+            Tcl_WrongNumArgs(interp,1,objv,"int"); return TCL_ERROR;
+        }
+        if (Tcl_GetIntFromObj(interp,objv[1],&n)!=TCL_OK) return TCL_ERROR;
+        Tcl_SetObjResult(interp, Tcl_NewIntObj(fib(n)));
+        return TCL_OK;
+    }
+    DLL_EXPORT int Test_Init(Tcl_Interp *interp) {
+        Tcl_CreateObjCommand(interp,"fibo",fibo,NULL,NULL);
+        Tcl_Eval(interp, "puts {DLL success 1}");
+        return TCL_OK;
+    }
+}
+test tcc-10.1 DLL -constraints pc -body {
+    puts [time {tcc::to_dll $code test[info sharedlibextension]}]
+    load test[info sharedlibextension]
+    fibo 20
+} -result 6765
+test tcc-10.3 "new DLL interface" -constraints pc -body {
+    set d [tcc::dll]
+    $d ccode {static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}}
+    $d cproc fiboy {int n} int {return fib(n);}
+    $d cproc hello {} char* {return "world";}
+    $d write -name fiboy -code {Tcl_Eval(interp,"puts {hello Fiboy!}");}
+    load fiboy[info sharedlibextension]
+    list [fiboy 20] [hello]
+} -result {6765 world}
+
+
+#test tcc-10.9 "unload DLL" {
+    # Can't unload in a trusted interp (tcltest)
+    #unload test[info sharedlibextension]
+    # Can't delete a loaded DLL (Windows)
+    #file delete test[info sharedlibextension]
+#} ""
+
+namespace import tcc::*
+
+test tcc-11 add {
+	cproc add {int a int b} int {return a+b;}
+	add 3 4
+} 7
+test tcc-12 sub {
+	cproc sub {int a int b} int {return a-b;}
+	sub 3 4
+} -1
+test tcc-13 fibo {
+    ccode {
+        static int fibo(int n) {return n<=2? 1: fibo(n-1)+fibo(n-2);}
+    }
+    cproc fibo {int n} int {return fibo(n);}
+    fibo 20
+} 6765
+test tcc-14 variable {
+ cproc myincr {Tcl_Interp* interp char* varname} ok {
+    Tcl_Obj* var = Tcl_GetVar2Ex(interp,varname, NULL, TCL_LEAVE_ERR_MSG);
+    Tcl_Obj *res;
+    int i;
+    if(var == NULL) return TCL_ERROR;
+    if(Tcl_GetIntFromObj(interp, var, &i) != TCL_OK) return TCL_ERROR;
+    res = Tcl_NewIntObj(i+1);
+    Tcl_SetVar2Ex(interp, varname, NULL, res, 0);
+    Tcl_SetObjResult(interp, res);
+    return TCL_OK;
+ }
+ set foo 42
+ list $foo [myincr foo] $foo
+} {42 43 43}
+
+test tcc-15 sigmsg {
+    cproc sigmsg {int i} char* {return Tcl_SignalMsg(i);} 
+    sigmsg 4
+} "illegal instruction"
+
+test tcc-16 strrev {
+   cproc strrev {char* s} char* {
+      char *cp0, *cp1, t;
+      for (cp0=s, cp1=s+strlen(s)-1; cp1 > cp0; cp0++, cp1--) {
+		 t=*cp0; *cp0=*cp1; *cp1=t;
+      }
+      return s;
+   }
+  strrev hello
+} olleh
+
+test tcc-17 fibo {
+    ccode { static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);} } 
+    cproc fib {int n} int {return fib(n);} 
+    fibo 20
+} 6765
+
+test tcc-18 cdata {
+	cdata foo hello
+	foo
+} hello
+
+test tcc-19 hypot {
+	ccode {#include <math.h>}
+	cproc hypot {double a double b} double {return sqrt(a*a+b*b);}
+	hypot 3.0 4.0
+} 5.0
+
+#-- epilog
+tcltest::cleanupTests
+
