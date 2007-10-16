@@ -100,6 +100,10 @@ if test "${TEA_PLATFORM}" = "windows" ; then
     CLEANFILES="$CLEANFILES *.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
+
+    if test "$GCC" = "yes"; then
+       TEA_ADD_LIBS([-Wl,--exclude-libs,${TCL_STUB_LIB_FILE}])
+    fi
 else
     # Ensure no empty else clauses
     :
