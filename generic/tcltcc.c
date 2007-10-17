@@ -235,7 +235,7 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
     return TCL_OK;
 }
 
-int Tcc_Init(Tcl_Interp *interp)
+DLL_EXPORT int Tcc_Init(Tcl_Interp *interp)
 {
     if (Tcl_InitStubs(interp, "8.4" , 0) == 0L) {
         return TCL_ERROR;
