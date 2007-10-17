@@ -128,7 +128,7 @@ test tcc-8 sigid {
     sigid 2
 } SIGINT
 
-test tcc-9 crashtest -constraints knownBug -body {
+test tcc-9 crashtest -constraints pc -body {
     set i 50
     while {$i} {
         tcc . tcc1
