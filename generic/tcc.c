@@ -181,7 +181,7 @@ static int strstart(TCCState *st, const char *str, const char *val, const char *
 static void *tcc_malloc(TCCState *st, unsigned long size)
 {
     void *ptr = attemptckalloc(size);
-    if (!ptr && size) error(st, "memory full");
+    if (!ptr && size)tcc_error(st, "memory full");
     return ptr;
 }
 
@@ -196,7 +196,7 @@ static void *tcc_mallocz(TCCState *st, unsigned long size)
 static inline void *tcc_realloc(TCCState *st, void *ptr, unsigned long size)
 {
     void *ptr1 = attemptckrealloc(ptr, size);
-    if (!ptr1 && size) error(st, "memory full");
+    if (!ptr1 && size)tcc_error(st, "memory full");
     return ptr1;
 }
 
@@ -225,7 +225,7 @@ static void dynarray_add(TCCState *st, void ***ptab, int *nb_ptr, void *data)
             nb_alloc = nb * 2;
         pp = tcc_realloc(st, pp, nb_alloc * sizeof(void *));
         if (!pp)
-            error(st, "memory full");
+           tcc_error(st, "memory full");
         *ptab = pp;
     }
     pp[nb++] = data;
@@ -318,7 +318,7 @@ static void section_realloc(TCCState * st, Section *sec, unsigned long new_size)
         size = size * 2;
     data = tcc_realloc(st, sec->data, size);
     if (!data)
-        error(st, "memory full");
+       tcc_error(st, "memory full");
     memset(data + sec->data_allocated, 0, size - sec->data_allocated);
     sec->data = data;
     sec->data_allocated = size;
@@ -536,7 +536,7 @@ void error_noabort(TCCState * st, const char *fmt, ...)
     va_end(ap);
 }
 
-void error(TCCState * st, const char *fmt, ...)
+void tcc_error(TCCState * st, const char *fmt, ...)
 {
     va_list ap;
 
@@ -554,7 +554,7 @@ void error(TCCState * st, const char *fmt, ...)
 
 void expect(TCCState * st, const char *msg)
 {
-    error(st, "%s expected", msg);
+   tcc_error(st, "%s expected", msg);
 }
 
 void warning(TCCState * st, const char *fmt, ...)
@@ -572,7 +572,7 @@ void warning(TCCState * st, const char *fmt, ...)
 void skip(TCCState *st, int c)
 {
     if (tok != c)
-        error(st,"'%c' expected", c);
+       tcc_error(st,"'%c' expected", c);
     next(st);
 }
 
@@ -589,14 +589,14 @@ static TokenSym *tok_alloc_new(TCCState *st, TokenSym **pts, const char *str, in
     int i;
 
     if (tok_ident >= SYM_FIRST_ANOM) 
-        error(st, "memory full");
+       tcc_error(st, "memory full");
 
     /* expand token table if needed */
     i = tok_ident - TOK_IDENT;
     if ((i % TOK_ALLOC_INCR) == 0) {
         ptable = tcc_realloc(st, table_ident, (i + TOK_ALLOC_INCR) * sizeof(TokenSym *));
         if (!ptable)
-            error(st, "memory full");
+           tcc_error(st, "memory full");
         table_ident = ptable;
     }
 
@@ -656,7 +656,7 @@ static void cstr_realloc(TCCState *st, CString *cstr, int new_size)
         size = size * 2;
     data = tcc_realloc(st, cstr->data_allocated, size);
     if (!data)
-        error(st, "memory full");
+       tcc_error(st, "memory full");
     cstr->data_allocated = data;
     cstr->size_allocated = size;
     cstr->data = data;
@@ -1064,7 +1064,7 @@ static int handle_stray_noerror(TCCState *st)
 static void handle_stray(TCCState *st)
 {
     if(handle_stray_noerror(st))
-        error(st, "stray '\\' in program");
+       tcc_error(st, "stray '\\' in program");
 }
 
 /* skip the stray and handle the \\n case. Output an error if
@@ -1224,7 +1224,7 @@ static uint8_t *parse_comment(TCCState *st, uint8_t *p)
             c = handle_eob(st);
             p = file->buf_ptr;
             if (c == CH_EOF) {
-                error(st, "unexpected end of file in comment");
+               tcc_error(st, "unexpected end of file in comment");
             } else if (c == '\\') {
                 p++;
             }
@@ -1260,7 +1260,7 @@ static uint8_t *parse_pp_string(TCCState *st, uint8_t *p,
             if (c == CH_EOF) {
             unterminated_string:
                 /* XXX: indicate line number of start of string */
-                error(st, "missing terminating %c character", sep);
+               tcc_error(st, "missing terminating %c character", sep);
             } else if (c == '\\') {
                 /* escape : just skip \[\r]\n */
                 PEEKC_EOB(st, c, p);
@@ -1426,7 +1426,7 @@ static inline int tok_ext_size(TCCState *st, int t)
     case TOK_STR:
     case TOK_LSTR:
     case TOK_PPNUM:
-        error(st,"unsupported token");
+       tcc_error(st,"unsupported token");
         return 1;
     case TOK_CDOUBLE:
     case TOK_CLLONG:
@@ -1465,7 +1465,7 @@ static int *tok_str_realloc(TCCState *st, TokenString *s)
     }
     str = tcc_realloc(st, s->str, len * sizeof(int));
     if (!str)
-        error(st, "memory full");
+       tcc_error(st, "memory full");
     s->allocated_len = len;
     s->str = str;
     return str;
@@ -1700,7 +1700,7 @@ static void label_pop(TCCState * state, Sym **ptop, Sym *slast)
         if (s->r == LABEL_DECLARED) {
             warning(state, "label '%s' declared but not used", get_tok_str(state, s->v, NULL));
         } else if (s->r == LABEL_FORWARD) {
-                error(state, "label '%s' used but not defined",
+               tcc_error(state, "label '%s' used but not defined",
                       get_tok_str(state, s->v, NULL));
         } else {
             if (s->c) {
@@ -1778,7 +1778,7 @@ static void parse_define(TCCState *st)
     
     v = tok;
     if (v < TOK_IDENT)
-        error(st, "invalid macro name '%s'", get_tok_str(st, tok, &tokc));
+       tcc_error(st, "invalid macro name '%s'", get_tok_str(st, tok, &tokc));
     /* XXX: should check if same macro (ANSI) */
     first = NULL;
     t = MACRO_OBJ;
@@ -1802,7 +1802,7 @@ static void parse_define(TCCState *st)
                 next_nomacro(st);
             }
             if (varg < TOK_IDENT)
-                error(st,"badly punctuated parameter list");
+               tcc_error(st,"badly punctuated parameter list");
             s = sym_push2(st,&define_stack, varg | SYM_FIELD, is_vaargs, 0);
             *ps = s;
             ps = &s->next;
@@ -1905,7 +1905,7 @@ static void pragma_parse(TCCState *st)
             next(st);
             if (st->pack_stack_ptr <= st->pack_stack) {
             stk_error:
-                error(st,"out of pack stack");
+               tcc_error(st,"out of pack stack");
             }
             st->pack_stack_ptr--;
         } else {
@@ -1920,7 +1920,7 @@ static void pragma_parse(TCCState *st)
                 }
                 if (tok != TOK_CINT) {
                 pack_error:
-                    error(st, "invalid pack pragma");
+                   tcc_error(st, "invalid pack pragma");
                 }
                 val = tokc.i;
                 if (val < 1 || val > 16 || (val & (val - 1)) != 0)
@@ -1996,7 +1996,7 @@ static void preprocess(TCCState * st, int is_bof)
                 while (tok != TOK_LINEFEED) {
                     if (tok != TOK_STR) {
                     include_syntax:
-                        error(st,"'#include' expects \"FILENAME\" or <FILENAME>");
+                       tcc_error(st,"'#include' expects \"FILENAME\" or <FILENAME>");
                     }
                     pstrcat(st, buf, sizeof(buf), (char *)tokc.cstr->data);
                     next(st);
@@ -2046,7 +2046,7 @@ static void preprocess(TCCState * st, int is_bof)
                 }
             }
             if (st->include_stack_ptr >= st->include_stack + INCLUDE_STACK_SIZE)
-                error(st, "#include recursion too deep");
+               tcc_error(st, "#include recursion too deep");
             /* now search in all the include paths */
             n = st->nb_include_paths + st->nb_sysinclude_paths;
             for(i = 0; i < n; i++) {
@@ -2066,7 +2066,7 @@ static void preprocess(TCCState * st, int is_bof)
                         goto found;
                 }
             }
-            error(st, "include file '%s' not found", buf);
+           tcc_error(st, "include file '%s' not found", buf);
             f = NULL;
         found:
 #ifdef INC_DEBUG
@@ -2098,7 +2098,7 @@ static void preprocess(TCCState * st, int is_bof)
     do_ifdef:
         next_nomacro(st);
         if (tok < TOK_IDENT)
-            error(st,"invalid argument for '#if%sdef'", c ? "n" : "");
+           tcc_error(st,"invalid argument for '#if%sdef'", c ? "n" : "");
         if (is_bof) {
             if (c) {
 #ifdef INC_DEBUG
@@ -2110,22 +2110,22 @@ static void preprocess(TCCState * st, int is_bof)
         c = (define_find(st, tok) != 0) ^ c;
     do_if:
         if (st->ifdef_stack_ptr >= st->ifdef_stack + IFDEF_STACK_SIZE)
-            error(st, "memory full");
+           tcc_error(st, "memory full");
         *st->ifdef_stack_ptr++ = c;
         goto test_skip;
     case TOK_ELSE:
         if (st->ifdef_stack_ptr == st->ifdef_stack)
-            error(st, "#else without matching #if");
+           tcc_error(st, "#else without matching #if");
         if (st->ifdef_stack_ptr[-1] & 2)
-            error(st, "#else after #else");
+           tcc_error(st, "#else after #else");
         c = (st->ifdef_stack_ptr[-1] ^= 3);
         goto test_skip;
     case TOK_ELIF:
         if (st->ifdef_stack_ptr == st->ifdef_stack)
-            error(st, "#elif without matching #if");
+           tcc_error(st, "#elif without matching #if");
         c = st->ifdef_stack_ptr[-1];
         if (c > 1)
-            error(st, "#elif after #else");
+           tcc_error(st, "#elif after #else");
         /* last #if/#elif expression was true: we skip */
         if (c == 1)
             goto skip;
@@ -2141,7 +2141,7 @@ static void preprocess(TCCState * st, int is_bof)
         break;
     case TOK_ENDIF:
         if (st->ifdef_stack_ptr <= file->ifdef_stack_ptr)
-            error(st, "#endif without matching #if");
+           tcc_error(st, "#endif without matching #if");
         st->ifdef_stack_ptr--;
         /* '#ifndef macro' was at the start of file. Now we check if
            an '#endif' is exactly at the end of file */
@@ -2160,12 +2160,12 @@ static void preprocess(TCCState * st, int is_bof)
     case TOK_LINE:
         next(st);
         if (tok != TOK_CINT)
-            error(st, "#line");
+           tcc_error(st, "#line");
         file->line_num = tokc.i - 1; /* the line number will be incremented after */
         next(st);
         if (tok != TOK_LINEFEED) {
             if (tok != TOK_STR)
-                error(st, "#line");
+               tcc_error(st, "#line");
             pstrcpy(st,  file->filename, sizeof(file->filename), 
                     (char *)tokc.cstr->data);
         }
@@ -2183,7 +2183,7 @@ static void preprocess(TCCState * st, int is_bof)
         }
         *q = '\0';
         if (c == TOK_ERROR)
-            error(st, "#error %s", buf);
+           tcc_error(st, "#error %s", buf);
         else
             warning(st, "#warning %s", buf);
         break;
@@ -2196,7 +2196,7 @@ static void preprocess(TCCState * st, int is_bof)
                to emulate cpp behaviour */
         } else {
             if (!(saved_parse_flags & PARSE_FLAG_ASM_COMMENTS))
-                error(st, "invalid preprocessing directive #%s", get_tok_str(st,tok, &tokc));
+               tcc_error(st, "invalid preprocessing directive #%s", get_tok_str(st,tok, &tokc));
         }
         break;
     }
@@ -2381,7 +2381,7 @@ void parse_number(TCCState *st, const char *p)
             break;
         if (q >= token_buf + STRING_MAX_SIZE) {
         num_too_long:
-            error(st, "number too long");
+           tcc_error(st, "number too long");
         }
         *q++ = ch;
         ch = *p++;
@@ -2430,7 +2430,7 @@ void parse_number(TCCState *st, const char *p)
                         break;
                     }
                     if (t >= b)
-                        error(st, "invalid digit");
+                       tcc_error(st, "invalid digit");
                     bn_lshift(bn, shift, t);
                     frac_bits += shift;
                     ch = *p++;
@@ -2549,14 +2549,14 @@ void parse_number(TCCState *st, const char *p)
             } else {
                 t = t - '0';
                 if (t >= b)
-                    error(st, "invalid digit");
+                   tcc_error(st, "invalid digit");
             }
             n1 = n;
             n = n * b + t;
             /* detect overflow */
             /* XXX: this test is not reliable */
             if (n < n1)
-                error(st, "integer constant overflow");
+               tcc_error(st, "integer constant overflow");
         }
         
         /* XXX: not exactly ANSI compliant */
@@ -2576,7 +2576,7 @@ void parse_number(TCCState *st, const char *p)
             t = toup(st, ch);
             if (t == 'L') {
                 if (lcount >= 2)
-                    error(st, "three 'l's in integer constant");
+                   tcc_error(st, "three 'l's in integer constant");
                 lcount++;
                 if (lcount == 2) {
                     if (tok == TOK_CINT)
@@ -2587,7 +2587,7 @@ void parse_number(TCCState *st, const char *p)
                 ch = *p++;
             } else if (t == 'U') {
                 if (ucount >= 1)
-                    error(st, "two 'u's in integer constant");
+                   tcc_error(st, "two 'u's in integer constant");
                 ucount++;
                 if (tok == TOK_CINT)
                     tok = TOK_CUINT;
@@ -2874,7 +2874,7 @@ static inline void next_nomacro1(TCCState *st)
                 else
                     char_size = sizeof(nwchar_t);
                 if (tokcstr.size <= char_size)
-                    error(st, "empty character constant");
+                   tcc_error(st, "empty character constant");
                 if (tokcstr.size > 2 * char_size)
                     warning(st, "multi-character character constant");
                 if (!is_long) {
@@ -3028,7 +3028,7 @@ static inline void next_nomacro1(TCCState *st)
         p++;
         break;
     default:
-        error(st, "unrecognized character \\x%02x", c);
+       tcc_error(st, "unrecognized character \\x%02x", c);
         break;
     }
     file->buf_ptr = p;
@@ -3251,7 +3251,7 @@ static int macro_subst_tok(TCCState *st, TokenString *tok_str,
                 if (!args && !sa && tok == ')')
                     break;
                 if (!sa)
-                    error(st, "macro '%s' used with too many args",
+                   tcc_error(st, "macro '%s' used with too many args",
                           get_tok_str(st, s->v, 0));
                 tok_str_new(st, &str);
                 parlevel = 0;
@@ -3283,7 +3283,7 @@ static int macro_subst_tok(TCCState *st, TokenString *tok_str,
                 next_nomacro(st);
             }
             if (sa) {
-                error(st, "macro '%s' used with too few args",
+               tcc_error(st, "macro '%s' used with too few args",
                       get_tok_str(st, s->v, 0));
             }
 
@@ -3588,7 +3588,7 @@ void vsetc(TCCState *st, CType *type, int r, CValue *vc)
     int v;
 
     if (vtop >= vstack + (VSTACK_SIZE - 1))
-        error(st, "memory full");
+       tcc_error(st, "memory full");
     /* cannot let cpu flags if other instruction are generated. Also
        avoid leaving VT_JMP anywhere except on the top of the stack
        because it would complicate the code generator. */
@@ -3664,7 +3664,7 @@ static Sym *external_sym(TCCState *st, int v, CType *type, int r)
         s->type.t |= VT_EXTERN;
     } else {
         if (!is_compatible_types(st, &s->type, type))
-            error(st, "incompatible types for redefinition of '%s'", 
+           tcc_error(st, "incompatible types for redefinition of '%s'", 
                   get_tok_str(st, v, NULL));
     }
     return s;
@@ -3709,7 +3709,7 @@ void vswap(TCCState *st)
 void vpushv(TCCState *st, SValue *v)
 {
     if (vtop >= vstack + (VSTACK_SIZE - 1))
-        error(st, "memory full");
+       tcc_error(st, "memory full");
     vtop++;
     *vtop = *v;
 }
@@ -4447,7 +4447,7 @@ void gen_opl(TCCState *st, int op)
                 b = ind;
                 o(st, 0x1A000000 | encbranch(ind, 0, 1));
 #elif defined(TCC_TARGET_C67)
-                error("not implemented");
+               tcc_error("not implemented");
 #else
 #error not supported
 #endif
@@ -4509,7 +4509,7 @@ void gen_opic(TCCState *st, int op)
             /* if division by zero, generate explicit division */
             if (l2 == 0) {
                 if (const_wanted)
-                    error(st, "division by zero in constant");
+                   tcc_error(st, "division by zero in constant");
                 goto general_case;
             }
             switch(op) {
@@ -4632,7 +4632,7 @@ void gen_opif(TCCState *st, int op)
         case '/': 
             if (f2 == 0.0) {
                 if (const_wanted)
-                    error(st, "division by zero in constant");
+                   tcc_error(st, "division by zero in constant");
                 goto general_case;
             }
             f1 /= f2; 
@@ -4707,7 +4707,7 @@ static void check_comparison_pointer_types(TCCState *st, SValue *p1, SValue *p2,
         type2 = pointed_type(st, type2);
     } else if (bt2 != VT_FUNC) { 
     invalid_operands:
-        error(st, "invalid operands to binary %s", get_tok_str(st, op, NULL));
+       tcc_error(st, "invalid operands to binary %s", get_tok_str(st, op, NULL));
     }
     if ((type1->t & VT_BTYPE) == VT_VOID || 
         (type2->t & VT_BTYPE) == VT_VOID)
@@ -4748,7 +4748,7 @@ void gen_op(TCCState *st, int op)
         /* if both pointers, then it must be the '-' op */
         if (bt1 == VT_PTR && bt2 == VT_PTR) {
             if (op != '-')
-                error(st, "cannot use pointers here");
+               tcc_error(st, "cannot use pointers here");
             check_comparison_pointer_types(st, vtop - 1, vtop, op);
             /* XXX: check that types are compatible */
             u = pointed_size(st, &vtop[-1].type);
@@ -4760,7 +4760,7 @@ void gen_op(TCCState *st, int op)
         } else {
             /* exactly one pointer : must be '+' or '-'. */
             if (op != '-' && op != '+')
-                error(st, "cannot use pointers here");
+               tcc_error(st, "cannot use pointers here");
             /* Put pointer as first operand */
             if (bt2 == VT_PTR) {
                 vswap(st);
@@ -4802,7 +4802,7 @@ void gen_op(TCCState *st, int op)
         /* floats can only be used for a few operations */
         if (op != '+' && op != '-' && op != '*' && op != '/' &&
             (op < TOK_ULT || op > TOK_GT))
-            error(st, "invalid operands for binary operation");
+           tcc_error(st, "invalid operands for binary operation");
         goto std_op;
     } else if (bt1 == VT_LLONG || bt2 == VT_LLONG) {
         /* cast to biggest op */
@@ -5398,7 +5398,7 @@ static void gen_assign_cast(TCCState *state, CType *dt)
         error:
             type_to_str(state, buf1, sizeof(buf1), st, NULL);
             type_to_str(state, buf2, sizeof(buf2), dt, NULL);
-            error(state, "cannot cast '%s' to '%s'", buf1, buf2);
+           tcc_error(state, "cannot cast '%s' to '%s'", buf1, buf2);
         }
         break;
     }
@@ -5595,7 +5595,7 @@ static void parse_attribute(TCCState *st, AttributeDef *ad)
                 next(st);
                 n = expr_const(st);
                 if (n <= 0 || (n & (n - 1)) != 0) 
-                    error(st, "alignment must be a positive power of two");
+                   tcc_error(st, "alignment must be a positive power of two");
                 skip(st, ')');
             } else {
                 n = MAX_ALIGN;
@@ -5691,7 +5691,7 @@ static void struct_decl(TCCState *st, CType *type, int u)
         s = struct_find(st, v);
         if (s) {
             if (s->type.t != a)
-                error(st, "invalid type");
+               tcc_error(st, "invalid type");
             goto do_decl;
         }
     } else {
@@ -5709,7 +5709,7 @@ static void struct_decl(TCCState *st, CType *type, int u)
     if (tok == '{') {
         next(st);
         if (s->c != -1)
-            error(st, "struct/union/enum already defined");
+           tcc_error(st, "struct/union/enum already defined");
         /* cannot be empty */
         c = 0;
         /* non empty enums are not allowed */
@@ -5752,7 +5752,7 @@ static void struct_decl(TCCState *st, CType *type, int u)
                             expect(st, "identifier");
                         if ((type1.t & VT_BTYPE) == VT_FUNC ||
                             (type1.t & (VT_TYPEDEF | VT_STATIC | VT_EXTERN | VT_INLINE)))
-                            error(st, "invalid type for '%s'", 
+                           tcc_error(st, "invalid type for '%s'", 
                                   get_tok_str(st, v, NULL));
                     }
                     if (tok == ':') {
@@ -5760,10 +5760,10 @@ static void struct_decl(TCCState *st, CType *type, int u)
                         bit_size = expr_const(st);
                         /* XXX: handle v = 0 case for messages */
                         if (bit_size < 0)
-                            error(st, "negative width in bit-field '%s'", 
+                           tcc_error(st, "negative width in bit-field '%s'", 
                                   get_tok_str(st, v, NULL));
                         if (v && bit_size == 0)
-                            error(st, "zero width for bit-field '%s'", 
+                           tcc_error(st, "zero width for bit-field '%s'", 
                                   get_tok_str(st, v, NULL));
                     }
                     size = type_size(st, &type1, &align);
@@ -5784,10 +5784,10 @@ static void struct_decl(TCCState *st, CType *type, int u)
                             bt != VT_SHORT &&
                             bt != VT_BOOL &&
                             bt != VT_ENUM)
-                            error(st, "bitfields must have scalar type");
+                           tcc_error(st, "bitfields must have scalar type");
                         bsize = size * 8;
                         if (bit_size > bsize) {
-                            error(st, "width of '%s' exceeds its type",
+                           tcc_error(st, "width of '%s' exceeds its type",
                                   get_tok_str(st, v, NULL));
                         } else if (bit_size == bsize) {
                             /* no need for bit fields */
@@ -5894,7 +5894,7 @@ static int parse_btype(TCCState *st, CType *type, AttributeDef *ad)
             next(st);
         basic_type1:
             if ((t & VT_BTYPE) != 0)
-                error(st, "too many basic types");
+               tcc_error(st, "too many basic types");
             t |= u;
             typespec_found = 1;
             break;
@@ -6027,7 +6027,7 @@ static int parse_btype(TCCState *st, CType *type, AttributeDef *ad)
     }
 the_end:
     if ((t & (VT_SIGNED|VT_UNSIGNED)) == (VT_SIGNED|VT_UNSIGNED))
-      error(st, "signed and unsigned modifier");
+     tcc_error(st, "signed and unsigned modifier");
     if (st->char_is_unsigned) {
         if ((t & (VT_SIGNED|VT_UNSIGNED|VT_BTYPE)) == VT_BYTE)
             t |= VT_UNSIGNED;
@@ -6073,7 +6073,7 @@ static void parse_function_parameters(TCCState *st, CType *type, AttributeDef *a
             if (l != FUNC_OLD) {
                 if (!parse_btype(st, &pt, &ad1)) {
                     if (l) {
-                        error(st, "invalid type");
+                       tcc_error(st, "invalid type");
                     } else {
                         l = FUNC_OLD;
                         goto old_proto;
@@ -6084,7 +6084,7 @@ static void parse_function_parameters(TCCState *st, CType *type, AttributeDef *a
                     break;
                 type_decl(st, &pt, &ad1, &n, TYPE_DIRECT | TYPE_ABSTRACT);
                 if ((pt.t & VT_BTYPE) == VT_VOID)
-                    error(st, "parameter declared as void");
+                   tcc_error(st, "parameter declared as void");
             } else {
             old_proto:
                 n = tok;
@@ -6137,12 +6137,12 @@ static void parse_array_dimensions(TCCState *st, CType *type)
             n = vtop->c.i;
             vpop(st);
 
-            if (n < 0) error(st, message);
-        } else if (!local_stack) error(st, message);
+            if (n < 0)tcc_error(st, message);
+        } else if (!local_stack)tcc_error(st, message);
         else {
             gen_assign_cast(st, &int_type);
             n = -2;
-            error(st, "dynamic arrays not implemented yet");
+           tcc_error(st, "dynamic arrays not implemented yet");
         }
     }
     skip(st, ']');
@@ -6292,7 +6292,7 @@ static void gfunc_param_typed(TCCState *st, Sym *func, Sym *arg)
             gen_cast(st, &type);
         }
     } else if (arg == NULL) {
-        error(st, "too many arguments to function");
+       tcc_error(st, "too many arguments to function");
     } else {
         type = arg->type;
         type.t &= ~VT_CONSTANT; /* need to do that to avoid false warning */
@@ -6494,7 +6494,7 @@ static void unary(TCCState *st)
         /* in order to force cast, we add zero */
         unary(st);
         if ((vtop->type.t & VT_BTYPE) == VT_PTR)
-            error(st, "pointer not accepted for unary plus");
+           tcc_error(st, "pointer not accepted for unary plus");
         vpushi(st, 0);
         gen_op(st, '+');
         break;
@@ -6511,7 +6511,7 @@ static void unary(TCCState *st)
         size = type_size(st, &type, &align);
         if (t == TOK_SIZEOF) {
             if (size < 0)
-                error(st, "sizeof applied to an incomplete type");
+               tcc_error(st, "sizeof applied to an incomplete type");
             vpushi(st, size);
         } else {
             vpushi(st, align);
@@ -6594,7 +6594,7 @@ static void unary(TCCState *st)
         s = sym_find(st, t);
         if (!s) {
             if (tok != '(')
-                error(st, "'%s' undeclared", get_tok_str(st, t, NULL));
+               tcc_error(st, "'%s' undeclared", get_tok_str(st, t, NULL));
             /* for simple function calls, we tolerate undeclared
                external reference to int(st) function */
             if (st->warn_implicit_function_declaration)
@@ -6647,7 +6647,7 @@ static void unary(TCCState *st)
                     break;
             }
             if (!s)
-                error(st, "field not found");
+               tcc_error(st, "field not found");
             /* add field offset to pointer */
             vtop->type = char_pointer_type; /* change type to 'char *' */
             vpushi(st, s->c);
@@ -6730,7 +6730,7 @@ static void unary(TCCState *st)
                 }
             }
             if (sa)
-                error(st, "too few arguments to function");
+               tcc_error(st, "too few arguments to function");
             skip(st, ')');
             if (cur_text_section) gfunc_call(st, nb_args);
             else vtop -= (nb_args + 1);
@@ -7268,14 +7268,14 @@ static void block(TCCState *st, int *bsym, int *csym, int *case_sym, int *def_sy
     } else if (tok == TOK_BREAK) {
         /* compute jump */
         if (!bsym)
-            error(st, "cannot break");
+           tcc_error(st, "cannot break");
         *bsym = gjmp(st, *bsym);
         next(st);
         skip(st, ';');
     } else if (tok == TOK_CONTINUE) {
         /* compute jump */
         if (!csym)
-            error(st, "cannot continue");
+           tcc_error(st, "cannot continue");
         *csym = gjmp(st, *csym);
         next(st);
         skip(st, ';');
@@ -7392,7 +7392,7 @@ static void block(TCCState *st, int *bsym, int *csym, int *case_sym, int *def_sy
         if (!def_sym)
             expect(st, "switch");
         if (*def_sym)
-            error(st, "too many 'default'");
+           tcc_error(st, "too many 'default'");
         *def_sym = ind;
         is_expr = 0;
         goto block_after_label;
@@ -7434,7 +7434,7 @@ static void block(TCCState *st, int *bsym, int *csym, int *case_sym, int *def_sy
             s = label_find(st, b);
             if (s) {
                 if (s->r == LABEL_DEFINED)
-                    error(st, "duplicate label '%s'", get_tok_str(st, s->v, NULL));
+                   tcc_error(st, "duplicate label '%s'", get_tok_str(st, s->v, NULL));
                 gsym((long)s->next);
                 s->r = LABEL_DEFINED;
             } else {
@@ -7556,7 +7556,7 @@ static void decl_designator(TCCState *st, CType *type, Section *sec, unsigned lo
         } else {
             f = *cur_field;
             if (!f)
-                error(st, "too many field init");
+               tcc_error(st, "too many field init");
             /* XXX: fix this mess by using explicit storage field */
             type1 = f->type;
             type1.t |= (type->t & ~VT_TYPE);
@@ -7573,7 +7573,7 @@ static void decl_designator(TCCState *st, CType *type, Section *sec, unsigned lo
         int i;
 
         if (!sec)
-            error(st, "range init not supported yet for dynamic storage");
+           tcc_error(st, "range init not supported yet for dynamic storage");
         c_end = c + nb_elems * elem_size;
         if (c_end > sec->data_allocated)
             section_realloc(st, sec, c_end);
@@ -7611,7 +7611,7 @@ static void init_putv(TCCState *st, CType *type, Section *sec, unsigned long c,
         global_expr = saved_global_expr;
         /* NOTE: symbols are accepted */
         if ((vtop->r & (VT_VALMASK | VT_LVAL)) != VT_CONST)
-            error(st, "initializer element is not constant");
+           tcc_error(st, "initializer element is not constant");
         break;
     case EXPR_ANY:
         expr_eq(st);
@@ -7644,7 +7644,7 @@ static void init_putv(TCCState *st, CType *type, Section *sec, unsigned long c,
              bt == VT_LDOUBLE ||
              bt == VT_LLONG ||
              (bt == VT_INT && bit_size != 32)))
-            error(st, "initializer element is not computable at load time");
+           tcc_error(st, "initializer element is not computable at load time");
         switch(bt) {
         case VT_BYTE:
             *(char *)ptr |= (vtop->c.i & bit_mask) << bit_pos;
@@ -7777,7 +7777,7 @@ static void decl_initializer(TCCState *st, CType *type, Section *sec, unsigned l
             while (tok != '}') {
                 decl_designator(st, type, sec, c, &index, NULL, size_only);
                 if (n >= 0 && index >= n)
-                    error(st, "index too large");
+                   tcc_error(st, "index too large");
                 /* must put zero in holes (note that doing it that way
                    ensures that it even works with designators) */
                 if (!size_only && array_length < index) {
@@ -7833,7 +7833,7 @@ static void decl_initializer(TCCState *st, CType *type, Section *sec, unsigned l
             type_decl(st, &type1, &ad1, &n, TYPE_ABSTRACT);
 #if 0
             if (!is_assignable_types(type, &type1))
-                error(st, "invalid type for cast");
+               tcc_error(st, "invalid type for cast");
 #endif
             skip(st, ')');
         }
@@ -7926,7 +7926,7 @@ static void decl_initializer_alloc(TCCState *st, CType *type, AttributeDef *ad, 
     tok_str_new(st, &init_str);
     if (size < 0) {
         if (!has_init) 
-            error(st, "unknown type size");
+           tcc_error(st, "unknown type size");
         /* get all init string */
         if (has_init == 2) {
             /* only get strings */
@@ -7938,7 +7938,7 @@ static void decl_initializer_alloc(TCCState *st, CType *type, AttributeDef *ad, 
             level = 0;
             while (level > 0 || (tok != ',' && tok != ';')) {
                 if (tok < 0)
-                    error(st, "unexpected end of file in initializer");
+                   tcc_error(st, "unexpected end of file in initializer");
                 tok_str_add_tok(st, &init_str);
                 if (tok == '{')
                     level++;
@@ -7966,7 +7966,7 @@ static void decl_initializer_alloc(TCCState *st, CType *type, AttributeDef *ad, 
         /* if still unknown size, error */
         size = type_size(st, type, &align);
         if (size < 0) 
-            error(st, "unknown type size");
+           tcc_error(st, "unknown type size");
     }
     /* take into account specified alignment if bigger */
     if (ad->aligned) {
@@ -8009,7 +8009,7 @@ static void decl_initializer_alloc(TCCState *st, CType *type, AttributeDef *ad, 
             sym = sym_find(st, v);
             if (sym) {
                 if (!is_compatible_types(st, &sym->type, type))
-                    error(st, "incompatible types for redefinition of '%s'", 
+                   tcc_error(st, "incompatible types for redefinition of '%s'", 
                           get_tok_str(st, v, NULL));
                 if (sym->type.t & VT_EXTERN) {
                     /* if the variable is extern, it was not allocated */
@@ -8154,12 +8154,12 @@ static void func_decl_list(TCCState *st, Sym *func_sym)
                         goto found;
                     s = s->next;
                 }
-                error(st, "declaration for parameter '%s' but no such parameter",
+               tcc_error(st, "declaration for parameter '%s' but no such parameter",
                       get_tok_str(st, v, NULL));
             found:
                 /* check that no storage specifier except 'register' was given */
                 if (type.t & VT_STORAGE)
-                    error(st, "storage class specified for '%s'", get_tok_str(st, v, NULL)); 
+                   tcc_error(st, "storage class specified for '%s'", get_tok_str(st, v, NULL)); 
                 convert_parameter_type(st, &type);
                 /* we can add the type (NOTE: it could be local to the function) */
                 s->type = type;
@@ -8313,7 +8313,7 @@ static void decl(TCCState *st, int l)
                struct and union contents are handled by parse_btype(st) above. */
             if (tok == '{') {
                 if (l == VT_LOCAL)
-                    error(st, "cannot use local functions");
+                   tcc_error(st, "cannot use local functions");
                 if ((type.t & VT_BTYPE) != VT_FUNC)
                     expect(st, "function definition");
 
@@ -8339,7 +8339,7 @@ static void decl(TCCState *st, int l)
                         type.ref->r = sym->type.ref->r;
                     if (!is_compatible_types(st, &sym->type, &type)) {
                     func_error1:
-                        error(st, "incompatible types for redefinition of '%s'", 
+                       tcc_error(st, "incompatible types for redefinition of '%s'", 
                               get_tok_str(st, v, NULL));
                     }
                     /* if symbol is already defined, then put complete type */
@@ -8364,7 +8364,7 @@ static void decl(TCCState *st, int l)
                     for(;;) {
                         int t;
                         if (tok == TOK_EOF)
-                            error(st, "unexpected end of file");
+                           tcc_error(st, "unexpected end of file");
                         tok_str_add_tok(st, &func_str);
                         t = tok;
                         next(st);
@@ -8681,11 +8681,11 @@ void tcc_undefine_symbol(TCCState *st, const char *sym)
 #else
 static void asm_instr(TCCState *st)
 {
-    error(st, "inline asm() not supported");
+   tcc_error(st, "inline asm() not supported");
 }
 static void asm_global_instr(TCCState *st)
 {
-    error(st, "inline asm() not supported");
+   tcc_error(st, "inline asm() not supported");
 }
 #endif
 

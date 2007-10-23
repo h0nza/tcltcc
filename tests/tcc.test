@@ -22,6 +22,14 @@ test tcc-2 "very simple command" {
     rename tcc1 {}
     test2
 } ""
+test tcc-2a "compilation error" -body {
+    tcc $::tcc::dir tcc1
+    tcc1 compile { boo
+ }
+    rename tcc1 {}
+} -returnCodes 1 -result {<string>:2: ';' expected
+compilation failed}
+
 test tcc-3 "addition" {
     tcc $::tcc::dir tcc2
     tcc2 add_library tcl8.5
@@ -128,7 +136,7 @@ test tcc-8 sigid {
     sigid 2
 } SIGINT
 
-test tcc-9 crashtest -constraints pc -body {
+test tcc-9 crashtest -body {
     set i 50
     while {$i} {
         tcc . tcc1
@@ -244,6 +252,7 @@ test tcc-19 hypot {
 	cproc hypot {double a double b} double {return sqrt(a*a+b*b);}
 	hypot 3.0 4.0
 } 5.0
+
 
 #-- epilog
 tcltest::cleanupTests
