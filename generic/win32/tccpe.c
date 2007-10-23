@@ -1153,7 +1153,7 @@ void pe_guess_outfile(TCCState *st, char *objfilename, int output_type)
     if (output_type == TCC_OUTPUT_OBJ && strcmp(ext, ".o"))
         strcpy(ext, ".o");
     else
-        error(st, "no outputfile given");
+       tcc_error(st, "no outputfile given");
 }
 
 /* ------------------------------------------------------------- */

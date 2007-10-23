@@ -174,7 +174,7 @@ void *tcc_get_symbol_err(TCCState *st, const char *name)
 {
     unsigned long val;
     if (tcc_get_symbol(st, &val, name) < 0)
-        error(st, "%s not defined", name);
+       tcc_error(st, "%s not defined", name);
     return (void *)val;
 }
 
@@ -549,7 +549,7 @@ static void relocate_section(TCCState *st, Section *s)
                 x *= 4;
                 x += val - addr;
                 if((x & 3) != 0 || x >= 0x4000000 || x < -0x4000000)
-                    error(st, "can't relocate value at %x",addr);
+                   tcc_error(st, "can't relocate value at %x",addr);
                 x >>= 2;
                 x &= 0xffffff;
                 (*(int *)ptr) |= x;
@@ -563,7 +563,7 @@ static void relocate_section(TCCState *st, Section *s)
 		x = (x * 2) / 2;
 		x += val - addr;
 		if((x^(x>>1))&0x40000000)
-		    error(st, "can't relocate value at %x",addr);
+		   tcc_error(st, "can't relocate value at %x",addr);
 		(*(int *)ptr) |= x & 0x7fffffff;
 	    }
 	case R_ARM_ABS32:
@@ -681,7 +681,7 @@ static void put_got_offset(TCCState *st, int index, unsigned long val)
             n *= 2;
         tab = tcc_realloc(st, st->got_offsets, n * sizeof(unsigned long));
         if (!tab)
-            error(st, "memory full");
+           tcc_error(st, "memory full");
         st->got_offsets = tab;
         memset(st->got_offsets + st->nb_got_offsets, 0,
                (n - st->nb_got_offsets) * sizeof(unsigned long));
@@ -795,7 +795,7 @@ static void put_got_entry(TCCState *st,
             
             /* if we build a DLL, we add a %ebx offset */
             if (st->output_type == TCC_OUTPUT_DLL)
-                error(st, "DLLs unimplemented!");
+               tcc_error(st, "DLLs unimplemented!");
 
             /* add a PLT entry */
             plt = st->plt;
@@ -820,7 +820,7 @@ static void put_got_entry(TCCState *st,
                 offset = plt->data_offset - 16;
         }
 #elif defined(TCC_TARGET_C67)
-        error(st, "C67 got not implemented");
+       tcc_error(st, "C67 got not implemented");
 #else
 #error unsupported CPU
 #endif

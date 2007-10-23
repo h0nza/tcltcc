@@ -277,7 +277,7 @@ static void parse_operand(TCCState *st, Operand *op)
             goto no_skip;
         } else {
         reg_error:
-            error(st, "unknown register");
+            tcc_error(st, "unknown register");
         }
         next(st);
     no_skip: ;
@@ -434,19 +434,19 @@ static void asm_opcode(TCCState *st, int opcode)
         if (tok == ';' || tok == TOK_LINEFEED)
             break;
         if (nb_ops >= MAX_OPERANDS) {
-            error(st, "incorrect number of operands");
+            tcc_error(st, "incorrect number of operands");
         }
         parse_operand(st, pop);
         if (tok == ':') {
            if (pop->type != OP_SEG || has_seg_prefix) {
-               error(st, "incorrect prefix");
+               tcc_error(st, "incorrect prefix");
            }
            seg_prefix = *pop;
            has_seg_prefix = 1;
            next(st);
            parse_operand(st, pop);
            if (!(pop->type & OP_EA)) {
-               error(st, "segment prefix must be followed by memory reference");
+               tcc_error(st, "segment prefix must be followed by memory reference");
            }
         }
         pop++;
@@ -534,7 +534,7 @@ static void asm_opcode(TCCState *st, int opcode)
             g(st, b);
             return;
         } else {
-            error(st, "unknown opcode '%s'", 
+            tcc_error(st, "unknown opcode '%s'", 
                   get_tok_str(st, opcode, NULL));
         }
     }
@@ -549,7 +549,7 @@ static void asm_opcode(TCCState *st, int opcode)
                 (ops[0].type & (OP_SEG | OP_IM8S | OP_IM32)))
                 s = 2;
             else
-                error(st, "cannot infer opcode suffix");
+                tcc_error(st, "cannot infer opcode suffix");
         }
     }
 
@@ -628,7 +628,7 @@ static void asm_opcode(TCCState *st, int opcode)
                 else 
                     v += 0x0f10;
             } else {
-                error(st, "invalid displacement");
+                tcc_error(st, "invalid displacement");
             }
         }
     }
@@ -662,7 +662,7 @@ static void asm_opcode(TCCState *st, int opcode)
                 goto modrm_found;
         }
 #ifdef ASM_DEBUG
-        error(st, "bad op table");
+        tcc_error(st, "bad op table");
 #endif      
     modrm_found:
         modrm_index = i;
@@ -685,7 +685,7 @@ static void asm_opcode(TCCState *st, int opcode)
         /* ljmp or lcall kludge */
         gen_expr32(st, &ops[1].e);
         if (ops[0].e.sym)
-            error(st, "cannot relocate");
+            tcc_error(st, "cannot relocate");
         gen_le16(st, ops[0].e.v);
     } else {
         for(i = 0;i < nb_ops; i++) {
@@ -709,7 +709,7 @@ static void asm_opcode(TCCState *st, int opcode)
                 } else if (v & OP_IM16) {
                     if (ops[i].e.sym) {
                     error_relocate:
-                        error(st, "cannot relocate");
+                        tcc_error(st, "cannot relocate");
                     }
                     gen_le16(st, ops[i].e.v);
                 } else {
@@ -770,7 +770,7 @@ static inline int constraint_priority(TCCState *st, const char *str)
             pr = 4;
             break;
         default:
-            error(st, "unknown constraint '%c'", c);
+           tcc_error(st, "unknown constraint '%c'", c);
             pr = 0;
         }
         if (pr > priority)
@@ -822,11 +822,11 @@ static void asm_compute_constraints(TCCState *st,
             /* this is a reference to another constraint */
             k = find_constraint(st, operands, nb_operands, str, NULL);
             if ((unsigned)k >= i || i < nb_outputs)
-                error(st, "invalid reference in constraint %d ('%s')",
+                tcc_error(st, "invalid reference in constraint %d ('%s')",
                       i, str);
             op->ref_index = k;
             if (operands[k].input_index >= 0)
-                error(st, "cannot reference twice the same operand");
+                tcc_error(st, "cannot reference twice the same operand");
             operands[k].input_index = i;
             op->priority = 5;
         } else {
@@ -886,7 +886,7 @@ static void asm_compute_constraints(TCCState *st,
             /* FALL THRU */
         case '&':
             if (j >= nb_outputs)
-                error(st, "'%c' modifier can only be applied to outputs", c);
+                tcc_error(st, "'%c' modifier can only be applied to outputs", c);
             reg_mask = REG_IN_MASK | REG_OUT_MASK;
             goto try_next;
         case 'A':
@@ -977,7 +977,7 @@ static void asm_compute_constraints(TCCState *st,
             }
             break;
         default:
-            error(st, "asm constraint %d ('%s') could not be satisfied", 
+            tcc_error(st, "asm constraint %d ('%s') could not be satisfied", 
                   j, op->constraint);
             break;
         }
@@ -1000,7 +1000,7 @@ static void asm_compute_constraints(TCCState *st,
                 if (!(regs_allocated[reg] & REG_OUT_MASK))
                     goto reg_found2;
             }
-            error(st, "could not find free output register for reloading");
+            tcc_error(st, "could not find free output register for reloading");
         reg_found2:
             *pout_reg = reg;
             break;
@@ -1053,7 +1053,7 @@ static void subst_asm_operand(TCCState *st, CString *add_str,
     } else if (r & VT_LVAL) {
         reg = r & VT_VALMASK;
         if (reg >= VT_CONST)
-            error(st, "internal compiler error");
+            tcc_error(st, "internal compiler error");
         snprintf(buf, sizeof(buf), "(%%%s)", 
                  get_tok_str(st, TOK_ASM_eax + reg, NULL));
         cstr_cat(st, add_str, buf);
@@ -1061,7 +1061,7 @@ static void subst_asm_operand(TCCState *st, CString *add_str,
         /* register case */
         reg = r & VT_VALMASK;
         if (reg >= VT_CONST)
-            error(st, "internal compiler error");
+           tcc_error(st, "internal compiler error");
 
         /* choose register operand size */
         if ((sv->type.t & VT_BTYPE) == VT_BYTE)
@@ -1075,11 +1075,11 @@ static void subst_asm_operand(TCCState *st, CString *add_str,
 
         if (modifier == 'b') {
             if (reg >= 4)
-                error(st, "cannot use byte register");
+               tcc_error(st, "cannot use byte register");
             size = 1;
         } else if (modifier == 'h') {
             if (reg >= 4)
-                error(st, "cannot use byte register");
+               tcc_error(st, "cannot use byte register");
             size = -1;
         } else if (modifier == 'w') {
             size = 2;
@@ -1205,7 +1205,7 @@ static void asm_clobber(TCCState *st, uint8_t *clobber_regs, const char *str)
     } else if (reg >= TOK_ASM_ax && reg <= TOK_ASM_di) {
         reg -= TOK_ASM_ax;
     } else {
-        error(st, "invalid clobber register '%s'", str);
+       tcc_error(st, "invalid clobber register '%s'", str);
     }
     clobber_regs[reg] = 1;
 }

@@ -713,7 +713,7 @@ static int is_compatible_types(TCCState *st, CType *type1, CType *type2);
 static void expr_const1(TCCState *st);
 
 int ieee_finite(TCCState *st, double d);
-void error(TCCState *st, const char *fmt, ...);
+void tcc_error(TCCState *st, const char *fmt, ...);
 void vpushi(TCCState *st, int v);
 void vrott(TCCState *st, int n);
 void vnrott(TCCState *st, int n);

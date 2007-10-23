@@ -52,7 +52,7 @@ static void asm_expr_unary(TCCState *s1, ExprValue *pe)
                 if (sym && sym->r == 0)
                     sym = sym->prev_tok;
                 if (!sym)
-                    error(s1, "local label '%d' not found backward", n);
+                   tcc_error(s1, "local label '%d' not found backward", n);
             } else {
                 /* forward */
                 if (!sym || sym->r) {
@@ -67,7 +67,7 @@ static void asm_expr_unary(TCCState *s1, ExprValue *pe)
             pe->v = n;
             pe->sym = NULL;
         } else {
-            error(s1, "invalid number syntax");
+           tcc_error(s1, "invalid number syntax");
         }
         next(s1);
         break;
@@ -81,7 +81,7 @@ static void asm_expr_unary(TCCState *s1, ExprValue *pe)
         next(s1);
         asm_expr_unary(s1, pe);
         if (pe->sym)
-            error(s1, "invalid operation with label");
+           tcc_error(s1, "invalid operation with label");
         if (op == '-')
             pe->v = -pe->v;
         else
@@ -117,7 +117,7 @@ static void asm_expr_unary(TCCState *s1, ExprValue *pe)
             }
             next(s1);
         } else {
-            error(s1, "bad expression syntax [%s]", get_tok_str(s1, tok, &tokc));
+           tcc_error(s1, "bad expression syntax [%s]", get_tok_str(s1, tok, &tokc));
         }
         break;
     }
@@ -137,7 +137,7 @@ static void asm_expr_prod(TCCState *s1, ExprValue *pe)
         next(s1);
         asm_expr_unary(s1, &e2);
         if (pe->sym || e2.sym)
-            error(s1, "invalid operation with label");
+           tcc_error(s1, "invalid operation with label");
         switch(op) {
         case '*':
             pe->v *= e2.v;
@@ -145,7 +145,7 @@ static void asm_expr_prod(TCCState *s1, ExprValue *pe)
         case '/':  
             if (e2.v == 0) {
             div_error:
-                error(s1, "division by zero");
+               tcc_error(s1, "division by zero");
             }
             pe->v /= e2.v;
             break;
@@ -178,7 +178,7 @@ static void asm_expr_logic(TCCState *s1, ExprValue *pe)
         next(s1);
         asm_expr_prod(s1, &e2);
         if (pe->sym || e2.sym)
-            error(s1, "invalid operation with label");
+           tcc_error(s1, "invalid operation with label");
         switch(op) {
         case '&':
             pe->v &= e2.v;
@@ -232,7 +232,7 @@ static inline void asm_expr_sum(TCCState *s1, ExprValue *pe)
                 pe->sym = NULL; /* same symbols can be substracted to NULL */
             } else {
             cannot_relocate:
-                error(s1, "invalid operation with label");
+               tcc_error(s1, "invalid operation with label");
             }
         }
     }
@@ -264,7 +264,7 @@ static void asm_new_label1(TCCState *s1, int label, int is_local,
         if (sym->r) {
             /* the label is already defined */
             if (!is_local) {
-                error(s1, "assembler label '%s' already defined", 
+               tcc_error(s1, "assembler label '%s' already defined", 
                       get_tok_str(s1, label, NULL));
             } else {
                 /* redefinition of local labels is possible */
@@ -339,7 +339,7 @@ static void asm_parse_directive(TCCState *s1)
         n = asm_int_expr(s1);
         if (tok1 == TOK_ASM_align) {
             if (n < 0 || (n & (n-1)) != 0)
-                error(s1, "alignment must be a positive power of two");
+               tcc_error(s1, "alignment must be a positive power of two");
             offset = (ind + n - 1) & -n;
             size = offset - ind;
             /* the section must have a compatible alignment */
@@ -370,7 +370,7 @@ static void asm_parse_directive(TCCState *s1)
             p = tokc.cstr->data;
             if (tok != TOK_PPNUM) {
             error_constant:
-                error(s1, "64 bit constant");
+               tcc_error(s1, "64 bit constant");
             }
             vl = strtoll(p, (char **)&p, 0);
             if (*p != '\0')
@@ -429,7 +429,7 @@ static void asm_parse_directive(TCCState *s1)
             next(s1);
             repeat = asm_int_expr(s1);
             if (repeat < 0) {
-                error(s1, "repeat < 0; .fill ignored");
+               tcc_error(s1, "repeat < 0; .fill ignored");
                 break;
             }
             size = 1;
@@ -438,7 +438,7 @@ static void asm_parse_directive(TCCState *s1)
                 next(s1);
                 size = asm_int_expr(s1);
                 if (size < 0) {
-                    error(s1, "size < 0; .fill ignored");
+                   tcc_error(s1, "size < 0; .fill ignored");
                     break;
                 }
                 if (size > 8)
@@ -471,7 +471,7 @@ static void asm_parse_directive(TCCState *s1)
             /* XXX: handle section symbols too */
             n = asm_int_expr(s1);
             if (n < ind)
-                error(s1, "attempt to .org backwards");
+               tcc_error(s1, "attempt to .org backwards");
             v = 0;
             size = n - ind;
             goto zero_pad;
@@ -565,14 +565,14 @@ static void asm_parse_directive(TCCState *s1)
             Section *sec;
             next(s1);
             if (!last_text_section)
-                error(s1, "no previous section referenced");
+               tcc_error(s1, "no previous section referenced");
             sec = cur_text_section;
             use_section1(s1, last_text_section);
             last_text_section = sec;
         }
         break;
     default:
-        error(s1, "unknown assembler directive '.%s'", get_tok_str(s1, tok, NULL));
+       tcc_error(s1, "unknown assembler directive '.%s'", get_tok_str(s1, tok, NULL));
         break;
     }
 }
@@ -803,7 +803,7 @@ static void subst_asm_operands(TCCState *s1,
                 modifier = *str++;
             index = find_constraint(s1, operands, nb_operands, str, &str);
             if (index < 0)
-                error(s1, "invalid operand reference after %%");
+               tcc_error(s1, "invalid operand reference after %%");
             op = &operands[index];
             sv = *op->vt;
             if (op->reg >= 0) {
@@ -833,7 +833,7 @@ static void parse_asm_operands(TCCState *s1,
         nb_operands = *nb_operands_ptr;
         for(;;) {
             if (nb_operands >= MAX_ASM_OPERANDS)
-                error(s1, "too many asm operands");
+               tcc_error(s1, "too many asm operands");
             op = &operands[nb_operands++];
             op->id = 0;
             if (tok == '[') {
