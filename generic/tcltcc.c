@@ -118,7 +118,11 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
                     s->relocated=1;
                 }
             }
-            tcc_get_symbol(s,&val,Tcl_GetString(objv[3]));
+            if (tcc_get_symbol(s,&val,Tcl_GetString(objv[3]))!=0) {
+		    Tcl_AppendResult(interp, "symbol '", Tcl_GetString(objv[3]),"' not found", NULL);
+		    return TCL_ERROR;
+	    }
+
             /*printf("symbol: %x\n",val); */
             Tcl_CreateObjCommand(interp,Tcl_GetString(objv[2]),(void *)val,NULL,NULL);
             return TCL_OK;
