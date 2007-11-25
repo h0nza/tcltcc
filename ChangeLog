@@ -1,4 +1,9 @@
 2007-11-25  Mark Janssen <mpc.janssen@gmail.com>
+	* tcc.test, ChangeLog
+	Removed test dependency on actual version number
+
+
+2007-11-25  Mark Janssen <mpc.janssen@gmail.com>
 	* tcltcc.c, ChangeLog
 	[tcc] will return the created handle command.
 
