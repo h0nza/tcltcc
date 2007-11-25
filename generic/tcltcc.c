@@ -235,6 +235,7 @@ static int TccCreateCmd( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj
     /*printf("type: %d\n", index); */
     tcc_set_output_type(s,index);
     Tcl_CreateObjCommand(interp,Tcl_GetString(objv[objc-1]),TccHandleCmd,s,TccCCommandDeleteProc);
+    Tcl_SetObjResult(interp,objv[objc-1]);
 
     return TCL_OK;
 }

@@ -1,4 +1,8 @@
 2007-11-25  Mark Janssen <mpc.janssen@gmail.com>
+	* tcltcc.c, ChangeLog
+	[tcc] will return the created handle command.
+
+2007-11-25  Mark Janssen <mpc.janssen@gmail.com>
 	* demo/tdom-compile.tcl, demo/tdom-compile-dll.tcl, ChangeLog
 	Updated tDOM demo files
 
