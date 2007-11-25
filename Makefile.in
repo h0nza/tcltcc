@@ -390,7 +390,7 @@ install-lib-binaries: binaries
 	for p in c lib include ; do \
 	    destp=`basename $$p`; \
 	    echo " Install $$destp $(DESTDIR)$(pkglibdir)/$$destp"; \
-	    cp -Pr $$p $(DESTDIR)$(pkglibdir); \
+	    cp -pR $$p $(DESTDIR)$(pkglibdir); \
 	done
 
 #========================================================================
