@@ -1,8 +1,6 @@
-switch -exact -- $::tcl_platform(platform) {
-	windows {load ../tcc02.dll}
-	unix {load ../libtcc0.2.so}
-}
-tcc .. dll tcc_1
+set auto_path [linsert $auto_path 0 ..]
+package require tcc
+tcc $tcc::dir dll tcc_1
 set t tcc_1
 puts $t
 $t add_include_path ../generic/i386

@@ -18,7 +18,7 @@ tcc1 compile {
 catch {tcc1 get_symbol fiba} res
 puts $res
 set addr [tcc1 get_symbol fib]
- puts $addr
+puts $addr
 tcc $::tcc::dir tcc2
 tcc2 add_symbol fib $addr
 tcc2 compile {
@@ -38,9 +38,12 @@ tcc2 compile {
   return TCL_OK;
  }
 }
+tcc2 add_library tcl8.5
+
 
 tcc2 command fib fibo
 puts [fib 40]
 
-tcc2 get_symbol "eh?"
+catch {tcc2 get_symbol "eh?"} res
+puts $res
 

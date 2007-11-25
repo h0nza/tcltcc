@@ -1,9 +1,11 @@
 # do the results of this benchmark indicate the BC execution engine can be optimized further?
 
-lappend auto_path ../
+set auto_path [linsert $auto_path 0 ..]
 package require tcc
-set t [tcc::new]
+tcc $tcc::dir tcc_1
+set t tcc_1
 puts $t
+$t add_library tcl8.5
 $t compile {
    #include "tcl.h"
     int tccappend( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Obj * CONST objv[]){

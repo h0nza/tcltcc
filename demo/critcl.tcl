@@ -1,10 +1,11 @@
 #!/usr/bin/env tclsh
 # Critcl (partial) emulation on top of tcc (Janssen)
+set auto_path [linsert $auto_path 0 ..]
+package require tcc
 
-load ../tcc02.dll
 namespace eval ::critcl {
   variable critcl
-  set critcl(dir) [file normalize [file dirname [info script]]/../pkg]
+  set critcl(dir) [file normalize [file dirname [info script]]/..]
   puts "dir $critcl(dir)"
 }
 proc ::critcl::Log {args} {
@@ -235,6 +236,7 @@ proc ::critcl::ccommand {procname anames args} {
   set ns [namespace current]
   uplevel 1 [list ${ns}::cc $code]
   Log "CREATING TCL COMMAND $procname / $cname"
+  $critcl(cc) add_library tcl8.5
   uplevel 1 [list $critcl(cc) command $procname $cname]
   unset critcl(cc) ;# can't be used for compiling anymore
 }

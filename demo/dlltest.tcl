@@ -1,13 +1,15 @@
-load ../tcc02.dll
+set auto_path [linsert $auto_path 0 ..]
+package require tcc
+
 proc to_dll {code dll} {
-    tcc ../pkg dll tcc_1
+    tcc $tcc::dir dll tcc_1
     tcc_1 add_library tcl8.5
     if {$::tcl_platform(platform) eq "windows"} {
         tcc_1 define DLL_EXPORT {__declspec(dllexport)} 
-        set f [open ../pkg/c/dllcrt1.c]
+        set f [open ../c/dllcrt1.c]
         tcc_1 compile [read $f]
         close $f
-        set f [open ../pkg/c/dllmain.c]
+        set f [open ../c/dllmain.c]
         tcc_1 compile [read $f]
         close $f
     } else {
