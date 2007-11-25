@@ -10,8 +10,8 @@ namespace eval tcc {
 
    set dir [file dirname [info script]]
    switch -exact -- $::tcl_platform(platform) {
-	   windows { load $dir/tcc02.dll tcc }
-	   unix { load $dir/libtcc0.2.so tcc }
+	   windows { load $dir/tcc041.dll tcc }
+	   unix { load $dir/libtcc0.4.1.so tcc }
 	   default {error "unsupport platform"}
    }
    set libs $dir/lib

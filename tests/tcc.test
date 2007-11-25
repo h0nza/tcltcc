@@ -6,8 +6,8 @@ namespace import -force tcltest::*
 test tcc-1 "load library" {
 	set dir [file dirname [info script]]/..
 	source $dir/pkgIndex.tcl
-	package require tcc 0.2
-} 0.2
+	package require tcc
+} 0.4.1 
 test tcc-2 "very simple command" {
     tcc $::tcc::dir tcc1
     tcc1 add_library tcl8.5

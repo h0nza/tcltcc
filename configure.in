@@ -76,7 +76,7 @@ TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
 TEA_ADD_CFLAGS([-DLIBTCC -DDLL_EXPORT=""])
 TEA_ADD_STUB_SOURCES([])
-TEA_ADD_TCL_SOURCES([])
+TEA_ADD_TCL_SOURCES([tcc.tcl])
 
 #--------------------------------------------------------------------
 # __CHANGE__

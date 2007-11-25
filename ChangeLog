@@ -1,3 +1,8 @@
+2007-11-25  Mark Janssen <mpc.janssen@gmail.com>
+	* configure.in, Makefile.in, tcc.tcl, test/tcc.test
+	Load correct version of dll so test suite will return without errors.
+	'make install' will copy tcc.tcl and c,lib and header files (bug 12).
+
 2007-10-12  Mark Janssen  <mpc.janssen@gmail.com>
 
 	* pkg/tcc.tcl, tests/tcc.test, tests/tcc_test.tcl:

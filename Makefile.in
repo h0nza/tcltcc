@@ -387,6 +387,11 @@ install-lib-binaries: binaries
 	    echo " Install pkgIndex.tcl $(DESTDIR)$(pkglibdir)"; \
 	    $(INSTALL_DATA) pkgIndex.tcl $(DESTDIR)$(pkglibdir); \
 	fi
+	for p in c lib include ; do \
+	    destp=`basename $$p`; \
+	    echo " Install $$destp $(DESTDIR)$(pkglibdir)/$$destp"; \
+	    cp -Pr $$p $(DESTDIR)$(pkglibdir); \
+	done
 
 #========================================================================
 # Install binary executables (e.g. .exe files and dependent .dll files)
