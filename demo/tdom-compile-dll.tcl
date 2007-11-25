@@ -1,8 +1,7 @@
-switch -exact -- $::tcl_platform(platform) {
-	windows {load ../tcc02.dll}
-	unix {load ../libtcc0.2.so}
-}
-tcc ../pkg dll tcc_1
+set auto_path [linsert $auto_path 0 ..]
+package require tcc
+
+tcc $tcc::dir dll tcc_1
 set t tcc_1
 puts $t
 $t add_include_path expat
@@ -46,9 +45,9 @@ foreach file [glob */*.c] {
     puts $file
     $t compile [read [open $file]]
 }
-$t add_file ../pkg/c/libtcc1.c
-$t add_file ../pkg/c/dllcrt1.c
-$t add_file ../pkg/c/dllmain.c
+$t add_file ../c/libtcc1.c
+$t add_file ../c/dllcrt1.c
+$t add_file ../c/dllmain.c
 puts here
 
 $t output_file tdom.0.8.2.dll
@@ -60,6 +59,7 @@ puts here
 puts [[dom parse {<test><woot/></test>}] asXML]
 
 # performance bench tcc/gcc
+if {[file exists [file dirname [info script]]/large.xml]} {
     set f [open [file dirname [info script]]/large.xml]
     set xml [read $f]
     close $f
@@ -71,4 +71,6 @@ puts [[dom parse {<test><woot/></test>}] asXML]
     puts "--------------------------------"
     puts "tcc: [time {tccdom parse $xml}]"
     puts "gcc: [time {gccdom parse $xml}]"
-
+} else {
+    puts "Put a large XML file large.xml in the demo directory to test the performance"
+}

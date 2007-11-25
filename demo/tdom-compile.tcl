@@ -1,8 +1,7 @@
-switch -exact -- $::tcl_platform(platform) {
-	windows {load ../tcc02.dll}
-	unix {load ../libtcc0.2.so}
-}
-tcc ../pkg tcc_1
+set auto_path [linsert $auto_path 0 ..]  
+package require tcc
+
+tcc $tcc::dir tcc_1
 set t tcc_1
 puts $t
 $t add_include_path expat
@@ -30,7 +29,7 @@ set tdomver 0.8.2
   # Use Tcl allocator (instead of default tDom one, which is heap 
   # optimized, but not multi-thread friendly)
   lappend defs "USE_NORMAL_ALLOCATOR=1"
-  
+ 
   # Since expat library is linked statically inside
   # same library than tdom, no need to have any special
   # call mechanism
@@ -61,16 +60,20 @@ init
 puts [[dom parse {<test><woot/></test>}] asXML]
 
 # performance bench tcc/gcc
-set f [open [file dirname [info script]]/large.xml]
-set xml [read $f]
-close $f
-rename dom tccdom
-puts "Parsing a [file size [file dirname [info script]]/large.xml] byte XML file"
-puts "--------------------------------"
-puts "tcc: [time {tccdom parse $xml}]"
-if {![catch {[package require tdom}]} {
+if {[file exists [file dirname [info script]]/large.xml]} {
+    set f [open [file dirname [info script]]/large.xml]
+    set xml [read $f]
+    close $f
+    rename dom tccdom
+    puts "Parsing a [file size [file dirname [info script]]/large.xml] byte XML file"
+    puts "--------------------------------"
+    puts "tcc: [time {tccdom parse $xml}]"
+    if {![catch {package require tdom}]} {
 	package forget tdom
 	rename dom gccdom
 	puts "gcc: [time {gccdom parse $xml}]"
+    }
+} else {
+    puts "Put a large XML file large.xml in the demo directory to test the performance"
 }
 
