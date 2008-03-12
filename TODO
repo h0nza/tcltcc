@@ -2,4 +2,5 @@
 * TCC: check on Linux-i386
 * TCC: Generate shared lib
 * TEA: Remove the include of c files. Create seperate o files instead.
+* TCC: Seperate compilation in phases so AST can be accessed from Tcl scripts
 
