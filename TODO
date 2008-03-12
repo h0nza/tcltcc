@@ -2,5 +2,4 @@
 * TCC: check on Linux-i386
 * TCC: Generate shared lib
 * TEA: Remove the include of c files. Create seperate o files instead.
-* TCC: Extract parsing of C-file and code generation into phases.
 
