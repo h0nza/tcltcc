@@ -1,6 +1,5 @@
-set auto_path [linsert $auto_path 0 ..]
-package require tcc
-tcc $tcc::dir dll tcc_1
+load tcc_bootstrap.dll Tcc
+tcc .. dll tcc_1
 set t tcc_1
 puts $t
 $t add_include_path ../generic/i386
@@ -15,5 +14,5 @@ $t add_file ../c/libtcc1.c
 $t add_file ../c/dllcrt1.c
 $t add_file ../c/dllmain.c
 $t add_file ../generic/tcc.c
-$t output_file tcc-test.dll
+$t output_file tcc.dll
 
