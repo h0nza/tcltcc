@@ -43,12 +43,14 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
     static CONST char *options[] = {
         "add_include_path", "add_file",  "add_library", 
         "add_library_path", "add_symbol", "command", "compile",
-        "define", "get_symbol", "output_file", "undefine",    (char *) NULL
+        "define", "get_symbol", "output_file", "undefine",
+       	"tclStubsPtr",    (char *) NULL
     };
     enum options {
         TCLTCC_ADD_INCLUDE, TCLTCC_ADD_FILE, TCLTCC_ADD_LIBRARY, 
         TCLTCC_ADD_LIBRARY_PATH, TCLTCC_ADD_SYMBOL, TCLTCC_COMMAND, TCLTCC_COMPILE,
-        TCLTCC_DEFINE, TCLTCC_GET_SYMBOL, TCLTCC_OUTPUT_FILE, TCLTCC_UNDEFINE
+        TCLTCC_DEFINE, TCLTCC_GET_SYMBOL, TCLTCC_OUTPUT_FILE, TCLTCC_UNDEFINE,
+	TCLTCC_STUBS_PTR
     };
 
 
@@ -205,6 +207,13 @@ static int TccHandleCmd ( ClientData cdata, Tcl_Interp *interp, int objc, Tcl_Ob
             }
             tcc_undefine_symbol(s,Tcl_GetString(objv[2]));
             return TCL_OK;
+	case TCLTCC_STUBS_PTR:
+	    if (objc !=2) {
+                Tcl_WrongNumArgs(interp, 2, objv, NULL);
+                return TCL_ERROR;
+	    }
+	    Tcl_SetObjResult(interp,Tcl_NewWideIntObj((unsigned long)&tclStubsPtr));
+	    return TCL_OK;
         default:
             Tcl_Panic("internal error during option lookup");
     }
@@ -245,6 +254,7 @@ DLL_EXPORT int Tcc_Init(Tcl_Interp *interp)
     if (Tcl_InitStubs(interp, "8.4" , 0) == 0L) {
         return TCL_ERROR;
     }
+    
     Tcl_CreateObjCommand(interp,PACKAGE_NAME,TccCreateCmd,NULL,NULL);
     Tcl_PkgProvide(interp,PACKAGE_NAME,PACKAGE_VERSION);
     return TCL_OK;
