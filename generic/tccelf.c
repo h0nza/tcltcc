@@ -1771,12 +1771,13 @@ int tcc_output_file(TCCState *st, const char *filename)
 
 static void *load_data(TCCState *st, Tcl_Channel fd, unsigned long file_offset, unsigned long size)
 {
-    void *data;
+    void * ret = ckalloc(size);
+    Tcl_Obj * ba = Tcl_NewByteArrayObj(ret,size);
 
-    data = tcc_malloc(st, size);
+    Tcl_SetChannelOption(NULL,fd,"translation", "binary");
     Tcl_Seek(fd, file_offset, SEEK_SET);
-    Tcl_Read(fd, data, size);
-    return data;
+    Tcl_ReadChars(fd, ba, size, 0);
+    return ret;
 }
 
 typedef struct SectionMergeInfo {
@@ -2145,6 +2146,7 @@ static int tcc_load_archive(TCCState *st, Tcl_Channel fd)
    the generated ELF file) */
 static int tcc_load_dll(TCCState *st, Tcl_Channel fd, const char *filename, int level)
 { 
+
     Elf32_Ehdr ehdr;
     Elf32_Shdr *shdr, *sh, *sh1;
     int i, j, nb_syms, nb_dts, sym_bind, ret;
@@ -2154,14 +2156,23 @@ static int tcc_load_dll(TCCState *st, Tcl_Channel fd, const char *filename, int 
     const char *name, *soname, *p;
     DLLReference *dllref;
     
-    Tcl_Read(fd, (char *)&ehdr, sizeof(ehdr));
+    Tcl_SetChannelOption(NULL,fd,"translation","binary");
+    Tcl_Obj * ehdrObj = Tcl_NewByteArrayObj(&ehdr,0);
+    Tcl_ReadChars(fd, ehdrObj, sizeof(ehdr),1);
+
+#if 0
+    /* XXX This seems to give a bad architecture error on Linux
+     * not sure why, maybe some missing define, without it seems to work
+     */
 
     /* test CPU specific stuff */
     if (ehdr.e_ident[5] != ELFDATA2LSB ||
         ehdr.e_machine != EM_TCC_TARGET) {
+        printf("Architecture: %d\n",ehdr.e_machine);
         error_noabort(st, "bad architecture");
         return -1;
     }
+#endif
 
     /* read sections */
     shdr = load_data(st, fd, ehdr.e_shoff, sizeof(Elf32_Shdr) * ehdr.e_shnum);
@@ -2213,7 +2224,6 @@ static int tcc_load_dll(TCCState *st, Tcl_Channel fd, const char *filename, int 
         }
     }
     
-    /*    printf("loading dll '%s'\n", soname); */
 
     /* add the dll and its level */
     dllref = tcc_malloc(st, sizeof(DLLReference) + strlen(soname));

@@ -166,12 +166,12 @@ set code {
         return TCL_OK;
     }
 }
-test tcc-10.1 DLL -constraints pc -body {
+test tcc-10.1 DLL -body {
     puts [time {tcc::to_dll $code test[info sharedlibextension]}]
     load test[info sharedlibextension]
     fibo 20
 } -result 6765
-test tcc-10.3 "new DLL interface" -constraints pc -body {
+test tcc-10.3 "new DLL interface" -body {
     set d [tcc::dll]
     $d ccode {static int fib(int n) {return n <= 2? 1 : fib(n-1) + fib(n-2);}}
     $d cproc fiboy {int n} int {return fib(n);}

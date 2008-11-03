@@ -8465,9 +8465,6 @@ static int tcc_compile(TCCState *st)
     char buf[512];
     volatile int section_sym;
 
-#ifdef INC_DEBUG
-    printf("%s: **** new file\n", file->filename);
-#endif
     preprocess_init(st);
 
     funcname = "";
@@ -8493,6 +8490,8 @@ static int tcc_compile(TCCState *st)
                 SHN_ABS, file->filename);
 
     /* define some often used types */
+
+    
     int_type.t = VT_INT;
 
     char_pointer_type.t = VT_BYTE;
@@ -9120,6 +9119,8 @@ static int tcc_add_dll(TCCState *s, const char *filename, int flags)
     char buf[1024];
     int i;
 
+
+
     for(i = 0; i < s->nb_library_paths; i++) {
         snprintf(buf, sizeof(buf), "%s/%s", 
                  s->library_paths[i], filename);
@@ -9142,8 +9143,9 @@ int tcc_add_library(TCCState *s, const char *libraryname)
 #else
         snprintf(buf, sizeof(buf), "lib%s.so", libraryname);
 #endif
-        if (tcc_add_dll(s, buf, 0) == 0)
+        if (tcc_add_dll(s, buf, 0) == 0) {
             return 0;
+        }
     }
 
     /* then we look for the static library */

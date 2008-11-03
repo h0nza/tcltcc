@@ -54,7 +54,7 @@ namespace eval tcc {
 }
 proc tcc::to_dll {code dll {libs {}}} {
     tcc $::tcc::dir dll tcc_1
-    tcc_1 add_library tcl8.5 
+    tcc_1 add_library tcl8.5
     tcc_1 add_library_path .
     foreach lib $libs {tcc_1 add_library $lib}
     if {$::tcl_platform(platform) eq "windows"} {
